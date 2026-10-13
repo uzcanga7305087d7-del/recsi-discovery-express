@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery Express · RECSI CNC</title>
+<meta name="theme-color" content="#0C2340">
+</head>
+<body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+  :root{
+    color-scheme:dark;
+    --navy:#0C2340; --navy-2:#132C4F; --navy-3:#0A1B33;
+    --teal:#1D9E75; --orange:#D85A30; --amber:#EF9F27; --paper:#F3F1EA;
+    --line: rgba(243,241,234,0.14); --line-strong: rgba(243,241,234,0.28);
+    --font-display:'Space Grotesk','Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono','Courier New',monospace;
+    --font-body:'Inter','Segoe UI',sans-serif;
+    --red:#D8464A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  body{
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--navy);
+    color:var(--paper); font-family:var(--font-body); min-height:100vh; padding:28px 16px 60px;
+  }
+  .wrap{max-width:860px;margin:0 auto;}
+  .head{border:1px solid var(--line-strong); background:linear-gradient(180deg, var(--navy-2), var(--navy-3)); padding:28px 26px 24px; position:relative; overflow:hidden;}
+  .head::before{content:"";position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle at top right, rgba(239,159,39,0.18), transparent 70%);}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .eyebrow::before{content:"";width:7px;height:7px;background:var(--amber);display:inline-block;transform:rotate(45deg);}
+  h1{font-family:var(--font-display);font-weight:700;font-size:clamp(24px,4vw,32px);margin:0 0 10px;line-height:1.15;letter-spacing:-0.01em;}
+  .lede{color:rgba(243,241,234,0.72);font-size:14.5px;line-height:1.55;max-width:64ch;margin:0;}
+  .obj-box{margin-top:18px;border-left:2px solid var(--teal);padding:10px 14px;background:rgba(29,158,117,0.08);font-size:13px;color:rgba(243,241,234,0.85);line-height:1.5;}
+  .obj-box b{color:var(--teal);font-family:var(--font-mono);font-weight:600;letter-spacing:.03em;}
+
+  .progress-label{font-family:var(--font-mono);font-size:11px;color:rgba(243,241,234,0.55);display:flex;justify-content:space-between;margin-bottom:8px;margin-top:16px;}
+  .progress{display:flex;gap:4px;margin:0 0 22px;flex-wrap:wrap;}
+  .progress .seg{flex:1;min-width:20px;height:5px;background:rgba(243,241,234,0.14);}
+  .progress .seg.done{background:var(--teal);}
+  .progress .seg.current{background:var(--amber);}
+
+  .card{border:1px solid var(--line-strong);background:var(--navy-2);padding:26px 26px 28px;margin-top:2px;}
+  .block-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  .block-icon{width:38px;height:38px;flex:none;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;color:var(--amber);background:rgba(239,159,39,0.06);font-size:16px;}
+  .block-title{font-family:var(--font-display);font-size:19px;font-weight:700;margin:0;}
+  .block-sub{font-family:var(--font-mono);font-size:11px;color:rgba(243,241,234,0.5);letter-spacing:.05em;margin-top:2px;}
+
+  .q{margin-bottom:22px;}
+  .q .qtext{display:flex;gap:10px;font-size:14px;line-height:1.45;color:var(--paper);margin-bottom:10px;}
+  .q .qnum{font-family:var(--font-mono);font-size:12px;color:var(--amber);flex:none;padding-top:1px;min-width:26px;}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-left:36px;}
+  @media (max-width:520px){.options{grid-template-columns:1fr;}}
+  .opt{
+    border:1px solid var(--line-strong);background:var(--navy-3);padding:10px 12px;font-size:13px;
+    cursor:pointer;line-height:1.4;transition:all .12s ease;color:rgba(243,241,234,0.82);
+    display:flex;align-items:flex-start;gap:8px;
+  }
+  .opt:hover{border-color:rgba(243,241,234,0.5);}
+  .opt .dot{width:9px;height:9px;border:1px solid rgba(243,241,234,0.5);flex:none;margin-top:3px;border-radius:50%;}
+  .opt.sel{border-color:var(--teal);background:rgba(29,158,117,0.12);color:var(--paper);}
+  .opt.sel .dot{background:var(--teal);border-color:var(--teal);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:560px){.grid2{grid-template-columns:1fr;}}
+  .field label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:rgba(243,241,234,0.6);display:block;margin-bottom:6px;}
+  .field input, .field select, .field textarea{width:100%;background:var(--navy-3);border:1px solid var(--line-strong);color:var(--paper);font-family:var(--font-body);font-size:14px;padding:10px 12px;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--teal);}
+  .field textarea{resize:vertical;min-height:64px;line-height:1.45;font-family:inherit;}
+  .field .hint{font-family:var(--font-mono);font-size:10.5px;color:rgba(243,241,234,0.45);margin-top:5px;line-height:1.4;}
+
+  .spin-block{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);}
+  .spin-block .spin-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:4px;}
+  .spin-block .spin-title{font-family:var(--font-display);font-size:16px;font-weight:700;margin:0 0 6px;}
+  .spin-block .spin-lede{font-size:12.5px;color:rgba(243,241,234,0.6);line-height:1.5;margin:0 0 16px;max-width:60ch;}
+  .spin-block .field{margin-bottom:16px;}
+  .spin-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;color:var(--navy-3);background:var(--amber);padding:2px 6px;margin-right:8px;font-weight:700;}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:10px;}
+  .btn{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;padding:12px 18px;border:1px solid var(--line-strong);background:transparent;color:var(--paper);cursor:pointer;transition:all .15s ease;}
+  .btn:hover{border-color:var(--paper);}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:var(--navy-3);font-weight:700;}
+  .btn.primary:hover{background:#22b384;}
+  .btn.orange{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700;}
+  .btn.orange:hover{background:#e56b40;}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  a.btn{display:inline-block;text-decoration:none;}
+  .copy-fallback{display:none;width:100%;margin-top:10px;background:var(--navy-3);color:var(--paper);border:1px solid var(--line-strong);font-family:var(--font-mono);font-size:11px;line-height:1.5;padding:10px;min-height:160px;}
+
+  .warn{font-family:var(--font-mono);font-size:11.5px;color:var(--amber);margin-top:10px;display:none;}
+  .warn.show{display:block;}
+
+  /* RESULT / PLAN */
+  .scorebar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .scorebar-label{width:190px;flex:none;font-size:12.5px;color:rgba(243,241,234,0.8);}
+  .scorebar-track{flex:1;height:8px;background:rgba(243,241,234,0.1);position:relative;}
+  .scorebar-fill{height:100%;}
+  .scorebar-pct{width:42px;flex:none;text-align:right;font-family:var(--font-mono);font-size:11.5px;color:rgba(243,241,234,0.7);}
+  .tag{display:inline-block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;padding:3px 8px;text-transform:uppercase;border:1px solid;}
+  .tag.critico{color:var(--red);border-color:var(--red);background:rgba(216,70,74,0.1);}
+  .tag.riesgo{color:var(--orange);border-color:var(--orange);background:rgba(216,90,48,0.1);}
+  .tag.estable{color:var(--amber);border-color:var(--amber);background:rgba(239,159,39,0.1);}
+  .tag.optimo{color:var(--teal);border-color:var(--teal);background:rgba(29,158,117,0.1);}
+
+  .plan-section{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);}
+  .plan-section h3{font-family:var(--font-display);font-size:15px;margin:0 0 10px;color:var(--amber);}
+  .plan-item{border-left:2px solid var(--line-strong);padding:8px 14px;margin-bottom:10px;font-size:13.5px;line-height:1.5;color:rgba(243,241,234,0.85);}
+  .plan-item b{color:var(--paper);}
+  .plan-item.crit{border-color:var(--red);}
+  .plan-item.risk{border-color:var(--orange);}
+  .plan-item.ok{border-color:var(--teal);}
+
+  .package-box{margin-top:14px;border:1px solid var(--amber);background:rgba(239,159,39,0.07);padding:14px 16px;font-size:13.5px;color:rgba(243,241,234,0.9);}
+  .package-box b{color:var(--amber);font-family:var(--font-mono);}
+
+  .pdf-callout{
+    margin-top:18px; border:1px solid var(--teal); background:rgba(29,158,117,0.08);
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    font-size:13px; color:rgba(243,241,234,0.85); line-height:1.5;
+  }
+  .pdf-callout b{color:var(--teal);}
+
+  .status{margin-top:16px;padding:12px 14px;border:1px solid var(--line-strong);font-size:13px;display:none;}
+  .status.show{display:block;}
+  .status.ok{border-color:var(--teal);background:rgba(29,158,117,0.1);color:var(--teal);}
+  .status.err{border-color:var(--orange);background:rgba(216,90,48,0.1);color:#ffb499;}
+  .status.pending{border-color:var(--amber);background:rgba(239,159,39,0.08);color:var(--amber);}
+
+  .success-screen{text-align:center;padding:40px 20px;}
+  .success-screen .mark{width:56px;height:56px;margin:0 auto 18px;border:1px solid var(--teal);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:24px;}
+
+  .footer-note{margin-top:16px;font-size:11.5px;color:rgba(243,241,234,0.4);font-family:var(--font-mono);line-height:1.6;}
+
+  .btn.small{padding:8px 12px;font-size:10.5px;opacity:.85;}
+  .btn.small:hover{opacity:1;}
+
+  /* ===== Gemba Walk ===== */
+  .gw-q{border:1px solid var(--line-strong);background:var(--navy-3);padding:16px 16px 14px;margin-bottom:18px;}
+  .gw-eje{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);margin-bottom:8px;}
+  .gw-id{font-family:var(--font-mono);font-size:10.5px;color:var(--navy-3);background:var(--amber);padding:2px 7px;font-weight:700;margin-right:8px;}
+  .gw-q .qtext{display:flex;font-size:14px;line-height:1.45;color:var(--paper);margin-bottom:10px;}
+  .gw-opts{display:grid;grid-template-columns:1fr;gap:8px;}
+  .gw-meta{font-family:var(--font-mono);font-size:10.5px;color:rgba(243,241,234,0.55);line-height:1.55;margin:10px 0 4px;}
+  .gw-meta b{color:var(--teal);}
+  .gw-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  .gw-fields .full{grid-column:1/-1;}
+  @media (max-width:560px){.gw-fields{grid-template-columns:1fr;}}
+
+  /* ===== Reporte ejecutivo en pantalla ===== */
+  .rep h2{font-family:var(--font-display);font-size:15px;color:var(--amber);margin:22px 0 8px;padding-top:16px;border-top:1px solid var(--line);}
+  .rep h2:first-child{border-top:none;margin-top:0;padding-top:0;}
+  .rep p{font-size:13.5px;line-height:1.55;color:rgba(243,241,234,0.85);margin:6px 0;}
+  .rep ul{margin:6px 0 10px;padding-left:20px;font-size:13px;line-height:1.5;color:rgba(243,241,234,0.85);}
+  .rep li{margin-bottom:4px;}
+  .rep .tbl-wrap{overflow-x:auto;margin:8px 0 12px;}
+  .rep table.p-table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px;}
+  .rep table.p-table th{background:var(--navy-3);color:var(--amber);font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;text-align:left;padding:7px 8px;border:1px solid var(--line-strong);}
+  .rep table.p-table td{padding:7px 8px;border:1px solid var(--line);vertical-align:top;line-height:1.4;color:rgba(243,241,234,0.85);}
+
+  /* ===== Descargar PDF (impresión nativa del navegador, sin librerías externas) ===== */
+  #printArea{display:none;}
+  @media print{
+    body{background:#fff !important; padding:0 !important; color:#111;}
+    body > .wrap{display:none !important;}
+    #printArea{
+      display:block !important; color:#111; font-family:Arial, Helvetica, sans-serif;
+      max-width:100%; margin:0; padding:0 8mm; font-size:12px; line-height:1.5;
+    }
+    #printArea .p-eyebrow{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#0C2340;margin-bottom:4px;}
+    #printArea h1{font-size:20px;color:#0C2340;margin:0 0 14px;border-bottom:2px solid #1D9E75;padding-bottom:8px;}
+    #printArea h2{font-size:15px;color:#0C2340;margin:18px 0 6px;border-left:3px solid #D85A30;padding-left:8px;}
+    #printArea h3{font-size:12.5px;color:#0C2340;margin:12px 0 4px;}
+    #printArea p{margin:4px 0;}
+    #printArea table.p-meta{width:100%;border-collapse:collapse;margin-bottom:6px;}
+    #printArea table.p-meta td{padding:3px 6px;font-size:11.5px;border:none;}
+    #printArea table.p-table{width:100%;border-collapse:collapse;margin:6px 0 4px;}
+    #printArea table.p-table th{background:#0C2340;color:#fff;text-align:left;padding:5px 8px;font-size:11px;}
+    #printArea table.p-table td{padding:5px 8px;font-size:11px;border-bottom:1px solid #ddd;}
+    #printArea ol,#printArea ul{margin:4px 0;padding-left:20px;}
+    #printArea li{margin-bottom:4px;}
+    #printArea ol.p-checklist{padding-left:18px;}
+    #printArea ol.p-checklist li{margin-bottom:8px;font-size:11px;}
+    #printArea .p-answer{color:#1D9E75;font-weight:bold;}
+    #printArea .p-footer{margin-top:20px;padding-top:8px;border-top:1px solid #ccc;font-size:10px;color:#666;}
+    #printArea h3{page-break-after:avoid;}
+    #printArea li{page-break-inside:avoid;}
+  }
+</style>
+<div class="wrap">
+
+  <div class="head">
+    <div class="eyebrow">Discovery Express · RECSI CNC</div>
+    <h1>Diagnóstico exprés de proceso</h1>
+    <p class="lede">Gemba Walk de 5 preguntas estratégicas (cada respuesta con su fuente y evidencia) más un checklist de 60 preguntas en 6 bloques. Al terminar, el sistema cruza ambos y genera un reporte ejecutivo trazable: enfoque, alcance, matriz de hallazgos, propuesta de valor, beneficios y plan a 90 días.</p>
+    <div class="obj-box">
+      <b>Objetivo específico →</b> Convertir el recorrido de planta (Gemba Walk) y el checklist en un reporte ejecutivo trazable: cada hallazgo se liga a su pregunta, su evidencia y su fuente, y se contrasta contra el checklist para separar hechos confirmados de hipótesis por validar.
+    </div>
+  </div>
+
+  <div id="progressLabel" class="progress-label"></div>
+  <div id="progress" class="progress"></div>
+
+  <form id="diagForm">
+    <div class="card step" data-step="0">
+      <div class="block-head">
+        <div class="block-icon">◆</div>
+        <div><p class="block-title">Datos del consultor y del cliente</p><p class="block-sub">REQUERIDO ANTES DE INICIAR</p></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Nombre del consultor especialista certificado</label><input type="text" id="consultorNombre" placeholder="Ej. Marco Antonio Soto" required></div>
+        <div class="field"><label>Fecha del diagnóstico</label><input type="date" id="fecha"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Nombre de la empresa</label><input type="text" id="empresa" placeholder="Razón social (ej. FRISA AEROSPACE)" required></div>
+        <div class="field"><label>Nombre del contacto</label><input type="text" id="contacto" placeholder="Nombre completo" required></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Puesto</label><input type="text" id="puesto" placeholder="Ej. Gerente de Producción"></div>
+        <div class="field"><label>Celular</label><input type="tel" id="celular" placeholder="+52 81 0000 0000"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Correo electrónico</label><input type="email" id="email" placeholder="nombre@empresa.com"></div>
+        <div class="field">
+          <label>Participación en la toma de decisiones</label>
+          <select id="decision">
+            <option value="">Selecciona una opción</option>
+            <option value="Decisor final">Decisor final</option>
+            <option value="Influye directamente en la decisión">Influye directamente en la decisión</option>
+            <option value="Recopila información para reportar a un decisor">Recopila información para reportar a un decisor</option>
+            <option value="Sin participación en la decisión">Sin participación en la decisión</option>
+          </select>
+        </div>
+      </div>
+      <div class="spin-block">
+        <div class="spin-eyebrow">Antes de iniciar el checklist</div>
+        <p class="spin-title">Conversación previa — Marco SPIN</p>
+        <p class="spin-lede">Estas 4 preguntas no se puntúan: son la conversación con el cliente antes o durante el checklist. Capturan, en sus propias palabras, el dolor real y el número que va a sostener la propuesta. Anótalas tal como las responda — se incluyen textuales en el informe final.</p>
+
+        <div class="field">
+          <label><span class="spin-tag">S</span>Situación — ¿Cómo están gestionando actualmente la optimización de herramientas y los tiempos de ciclo en los proyectos de mayor volumen?</label>
+          <textarea id="spinSituacion" rows="2" placeholder="Respuesta del cliente, en sus palabras..."></textarea>
+        </div>
+
+        <div class="field">
+          <label><span class="spin-tag">P</span>Problema — ¿Cuál es el máximo reto actualmente en su área que quisiera eliminar como el problema principal para la empresa?</label>
+          <textarea id="spinProblema" rows="2" placeholder="Respuesta del cliente, en sus palabras..."></textarea>
+        </div>
+
+        <div class="field">
+          <label><span class="spin-tag">I</span>Implicación — Si resolvemos esto, ¿cómo mediría tu equipo el éxito? ¿Cómo se ve ese número hoy vs. dónde debería estar?</label>
+          <textarea id="spinImplicacion" rows="2" placeholder="Respuesta del cliente — este número alimenta la cuantificación del impacto..."></textarea>
+          <div class="hint">Este dato es la materia prima directa del "Costo de Inacción" en la propuesta.</div>
+        </div>
+
+        <div class="field">
+          <label><span class="spin-tag">N/B</span>Necesidad / Beneficio — Si logramos resolverlo, ¿qué impacto tendría directamente en la capacidad de respuesta y el margen operativo de la empresa este trimestre?</label>
+          <textarea id="spinNecesidad" rows="2" placeholder="Respuesta del cliente — se reutiliza casi textual en el resumen ejecutivo..."></textarea>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button type="button" class="btn" disabled>← Anterior</button>
+        <button type="button" class="btn primary" onclick="goNext()">Comenzar Gemba Walk →</button>
+      </div>
+    </div>
+
+    <div id="gembaHost"></div>
+    <div id="blocksHost"></div>
+    <div id="resultHost"></div>
+  </form>
+
+  <div class="footer-note">RECSI CNC — Red Especializada y Certificada en Servicios de Ingeniería CNC · El diagnóstico y el plan de acción se envían a direccion.recsicnc@gmail.com</div>
+</div>
+
+<script>
+/* ============ DESTINO DEL DIAGNÓSTICO ============ */
+const DEST_EMAIL = "direccion.recsicnc@gmail.com";
+
+/* ============ BANCO DE PREGUNTAS: 6 BLOQUES x 10 (opción múltiple) ============ */
+/* score: 0(peor/mayor riesgo) a 3(mejor/madurez alta). score:null = pregunta de perfil (no puntúa). */
+const ICONS = {building:"⬛",sitemap:"⌘",alert:"▲",data:"☁",users:"◈",growth:"↗"};
+
+const BLOCKS = [
+{ key:"contexto", title:"1. Contexto del negocio", icon:ICONS.building, sub:"PREGUNTAS 1–10",
+  q:[
+  {t:"¿A qué se dedica la empresa?", tag:"sector", o:[["Manufactura / mecanizado CNC",null],["Proveeduría automotriz (Tier 1/2/3)",null],["Formación técnica / educación",null],["Distribución o fabricación de maquinaria/herramientas (MTD)",null]]},
+  {t:"¿Cuál es su producto o servicio principal?", tag:"producto", o:[["Piezas maquinadas de precisión",null],["Ensambles o subcomponentes",null],["Servicios de capacitación técnica",null],["Herramientas, equipo o refacciones CNC",null]]},
+  {t:"¿Quiénes son sus clientes principales?", tag:"clientes", o:[["Armadoras / Tier 1 automotriz",null],["Aeroespacial o dispositivos médicos",null],["Instituciones educativas",null],["Talleres y empresas metalmecánicas",null]]},
+  {t:"¿Qué áreas tiene actualmente la empresa?", tag:"estructura", o:[["Producción y Calidad",null],["Producción, Calidad y Mantenimiento",null],["Producción, Calidad, Mantenimiento y Administración",null],["Estructura completa (+ Ventas, IT, Administración)",null]]},
+  {t:"¿Cuál es el área que más necesita mejorar hoy?", tag:"areaFoco", o:[["Producción / mecanizado",null],["Calidad",null],["Mantenimiento",null],["Administración y control de datos",null]]},
+  {t:"¿Cuál es el objetivo más importante en los próximos 3–6 meses?", tag:"objetivo", o:[["Reducir costos",null],["Aumentar capacidad de producción",null],["Certificarse o cumplir una norma (IATF/ISO)",null],["Digitalizar y controlar la información",null]]},
+  {t:"¿Qué proceso afecta más directamente los ingresos?", tag:"procesoIngresos", o:[["Producción y entregas a tiempo",null],["Calidad (retrabajos y rechazos)",null],["Cotización y ventas",null],["Servicio postventa",null]]},
+  {t:"¿Qué proceso afecta más directamente los costos?", tag:"procesoCostos", o:[["Setup y cambios de herramienta",null],["Scrap y retrabajo",null],["Mantenimiento no programado",null],["Gestión de inventario y materiales",null]]},
+  {t:"¿Qué proceso genera más fricción interna?", tag:"friccion", o:[["Comunicación entre turnos",null],["Producción vs. Calidad",null],["Producción vs. Mantenimiento",null],["Falta de información o reportes confiables",null]]},
+  {t:"¿Qué problema, si se resolviera, tendría mayor impacto en el negocio?", tag:"problemaClave", o:[["Reducir tiempo de setup",null],["Reducir scrap y retrabajo",null],["Aumentar disponibilidad de máquina (OEE)",null],["Tener datos confiables en tiempo real",null]]}
+]},
+{ key:"proceso", title:"2. Área y proceso a diagnosticar", icon:ICONS.sitemap, sub:"PREGUNTAS 11–20",
+  q:[
+  {t:"¿Qué área específica queremos analizar primero?", tag:"areaAnalizar", o:[["Producción / mecanizado",null],["Calidad",null],["Mantenimiento",null],["Administración y datos",null]]},
+  {t:"¿Qué proceso dentro de esa área se quiere mejorar?", tag:"procesoMejorar", o:[["Cambio de herramienta / setup",null],["Programación y ejecución CNC",null],["Inspección y control de calidad",null],["Registro y reporte de datos",null]]},
+  {t:"¿Cómo funciona actualmente ese proceso?", o:[["Totalmente estandarizado y documentado",3],["Parcialmente documentado",2],["Depende de la experiencia del operador",1],["No hay procedimiento definido",0]]},
+  {t:"¿Quién inicia el proceso?", o:[["Sistema/ERP de forma automática",3],["Supervisor con orden de producción",2],["El operador, según su criterio",1],["No hay una regla fija",0]]},
+  {t:"¿Quién participa durante el proceso?", o:[["Operador, supervisor y calidad, con roles claros",3],["Operador y supervisor",2],["Solo el operador",1],["Varias áreas, sin roles definidos",0]]},
+  {t:"¿Quién lo supervisa?", o:[["Un responsable dedicado a este proceso",3],["El supervisor de turno, entre varias áreas",2],["El gerente, solo al final",1],["Nadie de forma constante",0]]},
+  {t:"¿Cuáles son los pasos principales del proceso?", o:[["Documentados en un SOP u hoja de proceso",3],["Definidos, pero no por escrito",2],["Varían según quién lo ejecute",1],["No están definidos",0]]},
+  {t:"¿Qué herramientas se usan actualmente?", o:[["Sistema digital (ERP / MES / software especializado)",3],["Hojas de cálculo (Excel)",2],["Formatos y papel físico",1],["Ninguna herramienta de control",0]]},
+  {t:"¿Qué documentos, archivos o sistemas intervienen?", o:[["Sistema integrado (ERP / MES)",3],["Archivos digitales dispersos",2],["Documentos físicos o bitácoras",1],["Información verbal, sin registro",0]]},
+  {t:"¿Cuánto tiempo suele tomar completar el proceso?", tag:"duracionProceso", o:[["Menos de 30 minutos",null],["Entre 30 minutos y 2 horas",null],["Entre 2 y 8 horas",null],["Más de 8 horas / un turno completo",null]]}
+]},
+{ key:"dolor", title:"3. Dolor y fricción", icon:ICONS.alert, sub:"PREGUNTAS 21–30",
+  q:[
+  {t:"¿Qué parte del proceso suele fallar con más frecuencia?", o:[["Casi nunca falla",3],["Falla ocasionalmente",2],["Falla frecuentemente",1],["Falla constantemente",0]]},
+  {t:"¿Dónde se pierde más tiempo?", tag:"tiempoPerdidoEn", o:[["Setup y ajustes de máquina",null],["Búsqueda de información o materiales",null],["Esperas y paros no programados",null],["Retrabajo y corrección de errores",null]]},
+  {t:"¿Qué tan controladas están las tareas que se repiten constantemente?", o:[["Están automatizadas o sistematizadas",3],["Se repiten, pero están bien controladas",2],["Se repiten y consumen mucho tiempo",1],["Se repiten y generan errores constantemente",0]]},
+  {t:"¿Dónde aparecen más errores?", tag:"erroresDonde", o:[["En la programación o parámetros de corte",null],["En la inspección de calidad",null],["En el registro de datos y reportes",null],["En la comunicación entre turnos",null]]},
+  {t:"¿Qué tanto dependen las tareas críticas de una persona específica?", o:[["Ninguna tarea depende de una sola persona",3],["Una o dos tareas dependen de alguien clave",2],["Varias tareas críticas dependen de una persona",1],["Todo el proceso depende de una sola persona",0]]},
+  {t:"¿Qué tan completa y ordenada suele estar la información?", o:[["Siempre está completa y ordenada",3],["Ocasionalmente falta información",2],["Frecuentemente está incompleta o desordenada",1],["Es la norma que falte o esté desordenada",0]]},
+  {t:"¿Qué tan urgente es sistematizar las tareas manuales del proceso?", o:[["Ya están sistematizadas",3],["Podrían sistematizarse, pero no es urgente",2],["Deberían sistematizarse pronto",1],["Son manuales y críticas para la operación",0]]},
+  {t:"¿Qué tanto estrés genera este proceso en el equipo?", o:[["Bajo estrés",3],["Estrés moderado en momentos puntuales",2],["Estrés frecuente",1],["Estrés constante, el proceso es insostenible",0]]},
+  {t:"¿Con qué frecuencia genera quejas de clientes o usuarios internos?", o:[["Casi no hay quejas",3],["Quejas ocasionales",2],["Quejas frecuentes",1],["Quejas constantes",0]]},
+  {t:"¿Se ha intentado resolver este problema antes?", tag:"intentosPrevios", o:[["No se ha intentado antes",null],["Se intentó con capacitación, sin éxito duradero",null],["Se intentó con un sistema/herramienta, sin adopción",null],["Se intentó varias veces, sin resultado",null]]}
+]},
+{ key:"datos", title:"4. Datos e información", icon:ICONS.data, sub:"PREGUNTAS 31–40",
+  q:[
+  {t:"¿Qué información se necesita para ejecutar este proceso?", tag:"infoNecesaria", o:[["Parámetros técnicos de proceso",null],["Indicadores de producción y calidad",null],["Costos y consumos",null],["Todo lo anterior, de forma integrada",null]]},
+  {t:"¿Dónde está almacenada esa información?", o:[["Sistema centralizado (ERP/MES/nube)",3],["Archivos digitales (Excel, carpetas compartidas)",2],["Documentos físicos",1],["No está almacenada de forma consistente",0]]},
+  {t:"¿La información está centralizada o dispersa?", o:[["Totalmente centralizada",3],["Parcialmente centralizada",2],["Dispersa en varias áreas",1],["Completamente dispersa, sin control",0]]},
+  {t:"¿La información se actualiza manualmente o automáticamente?", o:[["Automáticamente, en tiempo real",3],["Manualmente, de forma constante",2],["Manualmente, con frecuencia irregular",1],["Rara vez se actualiza",0]]},
+  {t:"¿Qué tanto se duplican los datos entre formatos o áreas?", o:[["No se duplican",3],["Se duplican ocasionalmente",2],["Se duplican con frecuencia",1],["Se capturan varias veces en distintos formatos",0]]},
+  {t:"¿Qué tan seguido tienen errores los datos?", o:[["Casi nunca",3],["Ocasionalmente",2],["Frecuentemente",1],["Constantemente, afecta decisiones",0]]},
+  {t:"¿Qué reportes se generan actualmente?", tag:"reportesGenerados", o:[["Reportes automáticos desde un sistema",null],["Reportes manuales en Excel",null],["Reportes en papel o bitácora",null],["No se generan reportes formales",null]]},
+  {t:"¿Quién usa esos reportes?", tag:"quienUsaReportes", o:[["Dirección / gerencia general",null],["Supervisores y jefes de área",null],["Solo quien los elabora",null],["Nadie los revisa de forma consistente",null]]},
+  {t:"¿Cada cuánto se actualizan?", tag:"frecuenciaActualizacion", o:[["Tiempo real / diario",null],["Semanal",null],["Mensual",null],["Sin frecuencia definida",null]]},
+  {t:"¿Qué información les gustaría tener en tiempo real?", tag:"infoTiempoReal", o:[["Estatus de producción y OEE",null],["Calidad y retrabajos",null],["Costos por pieza o por proceso",null],["Todo lo anterior en un solo dashboard",null]]}
+]},
+{ key:"usuarios", title:"5. Usuarios y roles", icon:ICONS.users, sub:"PREGUNTAS 41–50",
+  q:[
+  {t:"¿Quiénes serían los usuarios principales de la solución?", tag:"usuariosPrincipales", o:[["Operadores y supervisores de piso",null],["Gerencia y dirección",null],["Calidad y mantenimiento",null],["Todas las áreas de la empresa",null]]},
+  {t:"¿Qué tan clara está la tarea de cada usuario dentro del proceso?", o:[["Claramente definida para todos",3],["Definida, con traslapes ocasionales",2],["Poco clara, se resuelve sobre la marcha",1],["No está definida",0]]},
+  {t:"¿Qué nivel de conocimiento técnico tiene el equipo?", tag:"nivelTecnico", o:[["Alto, con experiencia en sistemas digitales",null],["Medio, requiere capacitación básica",null],["Bajo, resistencia al cambio tecnológico",null],["Mixto, muy variable entre el equipo",null]]},
+  {t:"¿Qué parte del proceso debería seguir siendo humana?", tag:"parteHumana", o:[["Supervisión y toma de decisiones",null],["Ajustes finos y criterio técnico",null],["Relación con el cliente",null],["Control de calidad final",null]]},
+  {t:"¿Qué parte podría automatizarse o asistirse con IA?", tag:"parteAutomatizable", o:[["Captura y registro de datos",null],["Generación de reportes",null],["Monitoreo de máquina en tiempo real",null],["Programación y cálculo de parámetros",null]]},
+  {t:"¿Quién aprobaría una posible implementación?", tag:"quienAprueba", o:[["Dirección general",null],["Gerencia de operaciones/planta",null],["Comité o varios responsables",null],["Aún no está definido",null]]},
+  {t:"¿Hay un responsable interno definido para el proyecto?", o:[["Ya hay un responsable asignado",3],["Se asignaría, pero no está definido aún",2],["Sería compartido entre varios, sin claridad",1],["No hay quién lo asuma",0]]},
+  {t:"¿Qué objeciones internas podrían aparecer?", tag:"objecionesInternas", o:[["Resistencia al cambio del personal",null],["Falta de tiempo para implementar",null],["Costo de la inversión",null],["Desconfianza en la tecnología/IA",null]]},
+  {t:"¿Qué equipo tendría que adoptar la solución?", tag:"equipoAdopta", o:[["Producción",null],["Calidad",null],["Administración",null],["Toda la empresa",null]]},
+  {t:"¿Qué tan abierto está ese equipo a usar IA?", o:[["Muy abierto, ya usan herramientas digitales",3],["Abierto, con acompañamiento",2],["Reservado, necesita ver resultados primero",1],["Resistente al uso de IA o nueva tecnología",0]]}
+]},
+{ key:"impacto", title:"6. Impacto y oportunidad", icon:ICONS.growth, sub:"PREGUNTAS 51–60",
+  q:[
+  {t:"¿Cuántas horas se pierden semanalmente en este proceso?", o:[["Menos de 5 horas",3],["Entre 5 y 15 horas",2],["Entre 15 y 30 horas",1],["Más de 30 horas",0]]},
+  {t:"¿Cuánto dinero podría estar costando este problema al mes?", o:[["Menos de $500 USD",3],["Entre $500 y $2,000 USD",2],["Entre $2,000 y $10,000 USD",1],["Más de $10,000 USD",0]]},
+  {t:"¿Qué pasaría si este problema se mantiene igual durante 6 meses?", o:[["Impacto mínimo, es manejable",3],["Impacto moderado en costos u operación",2],["Impacto serio en clientes o certificaciones",1],["Riesgo de pérdida de contratos o clientes clave",0]]},
+  {t:"¿Qué beneficio tendría reducir este proceso a la mitad del tiempo?", tag:"beneficioTiempo", o:[["Mayor capacidad de producción",null],["Reducción de costos operativos",null],["Mejor cumplimiento de entregas",null],["Todo lo anterior",null]]},
+  {t:"¿Qué beneficio tendría reducir errores?", tag:"beneficioErrores", o:[["Menos scrap y retrabajo",null],["Mejor relación con el cliente",null],["Cumplimiento de norma de calidad",null],["Todo lo anterior",null]]},
+  {t:"¿Qué beneficio tendría tener mejor seguimiento o control?", tag:"beneficioControl", o:[["Decisiones más rápidas y objetivas",null],["Menor dependencia de una persona",null],["Mejor control de costos",null],["Todo lo anterior",null]]},
+  {t:"¿Qué métrica debería mejorar para considerar exitosa la solución?", tag:"metricaExito", o:[["OEE",null],["Scrap / retrabajo",null],["Tiempo de setup",null],["Disponibilidad de información en tiempo real",null]]},
+  {t:"¿Qué resultado tangible espera la empresa?", tag:"resultadoTangible", o:[["Reducción de costos medible",null],["Aumento de capacidad/producción",null],["Certificación o cumplimiento normativo",null],["Sistema de control confiable",null]]},
+  {t:"¿Qué tan urgente es resolver este problema?", o:[["Baja, no es prioridad ahora",3],["Media, en los próximos 3–6 meses",2],["Alta, es prioridad este trimestre",1],["Crítica, requiere atención inmediata",0]]},
+  {t:"¿Cuánto valor tendría para la empresa resolverlo bien?", o:[["Bajo, mejora incremental",3],["Medio, mejora visible en resultados",2],["Alto, cambiaría la operación de forma importante",1],["Muy alto, es estratégico para el negocio",0]]}
+]}
+];
+
+const GEMBA = [
+{id:"GW-1", eje:"Productividad y tiempo de ciclo",
+ t:"¿Cómo se compara el tiempo de ciclo real con el estándar de la hoja de proceso en las piezas de mayor valor o volumen?",
+ o:[["Se mide por pieza o lote, está documentado y las desviaciones se analizan y se atienden.",3],
+    ["Se mide, pero hay desviaciones recurrentes sin causa raíz documentada.",2],
+    ["El estándar existe o se estima, pero no se mide de forma sistemática.",1],
+    ["No hay información suficiente o requiere validación adicional.",null]],
+ evid:"Hojas de proceso, registros de tiempo por lote, observación de un ciclo completo en máquina.",
+ riesgo:"Capacidad perdida e incumplimiento de entregas.",
+ opp:"Estudio de tiempos y optimización de ciclo (estrategia CAM y parámetros de corte).",
+ kpi:"Tiempo de ciclo real vs. estándar", metodo:"cronometraje en máquina y registro por lote",
+ benef:"Más capacidad y mejor cumplimiento de entregas",
+ links:[13,17,51]},
+{id:"GW-2", eje:"Desempeño del mecanizado CNC y utilización de equipos",
+ t:"¿Cómo se registran y analizan los tiempos de las máquinas CNC (corte, paro, espera, setup)?",
+ o:[["Se registran por causa, se analizan periódicamente (OEE o equivalente) y hay acciones asignadas.",3],
+    ["Se registran horas de paro o producción, pero sin clasificar causas ni dar seguimiento.",2],
+    ["Solo se conoce la producción por turno; los paros se estiman por percepción.",1],
+    ["No hay información suficiente o requiere validación adicional.",null]],
+ evid:"Bitácoras de paro, tablero visual, registros del control CNC, entrevista con mantenimiento.",
+ riesgo:"Capacidad oculta y costo hora-máquina mal absorbido.",
+ opp:"Línea base de OEE, plan SMED y reducción de paros.",
+ kpi:"OEE y horas de paro por causa", metodo:"registro por causa de paro durante un periodo definido",
+ benef:"Más horas productivas aprovechables",
+ links:[21,34,51]},
+{id:"GW-3", eje:"Herramientas de corte: desgaste, rotura y aprovechamiento",
+ t:"¿Cómo se define y controla el cambio de herramienta (vida útil, desgaste, rotura)?",
+ o:[["Vida definida por operación, registrada, con análisis de modos de falla y costo por filo o pieza.",3],
+    ["Vida definida en programa o por práctica, sin registro de causas de cambio ni costo.",2],
+    ["El cambio depende del criterio del operador (ruido, acabado, rotura), sin estándar.",1],
+    ["No hay información suficiente o requiere validación adicional.",null]],
+ evid:"Hojas de herramienta, consumo mensual, herramientas descartadas (observación del desgaste), parámetros Vc/fz/ap/ae.",
+ riesgo:"Costo de herramienta, rechazos por desgaste y paros por rotura.",
+ nota:"Todo cambio de parámetros puede requerir re-calificación (FAI); distinguirlo en el informe.",
+ opp:"Optimización de parámetros y gestión de la vida de herramienta.",
+ kpi:"Vida de herramienta y costo por filo o pieza", metodo:"registro de vida útil por operación y consumo mensual",
+ benef:"Menor costo de herramienta por pieza y menos paros por rotura",
+ links:[18,23,52]},
+{id:"GW-4", eje:"Calidad, retrabajos y prevención de defectos",
+ t:"¿Cómo se registran y analizan los rechazos, retrabajos y desperdicio, y cómo se previenen?",
+ o:[["Se registran por pieza y causa, con Pareto, causa raíz y verificación de eficacia de las acciones.",3],
+    ["Se registran cantidades, pero sin análisis sistemático de causa.",2],
+    ["Se atienden al ocurrir, sin registro consolidado.",1],
+    ["No hay información suficiente o requiere validación adicional.",null]],
+ evid:"Reportes de no conformidad (NCR), registros de retrabajo, área de scrap, métodos de análisis usados.",
+ riesgo:"Costo de no calidad y exposición ante el cliente.",
+ opp:"Análisis de causa raíz (5 Porqués, Ishikawa) y prevención por proceso.",
+ kpi:"% de rechazo, retrabajos y costo de no calidad", metodo:"Pareto de rechazos por causa en un periodo definido",
+ benef:"Menor costo de no calidad y menor exposición ante el cliente",
+ links:[29,36,53]},
+{id:"GW-5", eje:"Estandarización, competencias y control de resultados",
+ t:"¿Qué evidencia existe de que el proceso se ejecuta igual entre turnos y operadores?",
+ o:[["Hojas de proceso vigentes en máquina, control de cambios y matriz de competencias con evaluaciones.",3],
+    ["Hay documentos, pero sin verificación de cumplimiento; las competencias se asumen por antigüedad.",2],
+    ["El proceso depende del conocimiento individual; los parámetros no están documentados.",1],
+    ["No hay información suficiente o requiere validación adicional.",null]],
+ evid:"Documentos en piso frente a la versión vigente, comparación entre turnos, registros de capacitación.",
+ riesgo:"Variabilidad por operador y pérdida de conocimiento tácito.",
+ opp:"SOP, desarrollo de competencias y evaluación de certificaciones de competencias pertinentes.",
+ kpi:"Cumplimiento de hoja de proceso y cobertura de competencias", metodo:"auditoría de cumplimiento en piso y matriz de competencias",
+ benef:"Menor variabilidad entre turnos y menor dependencia de personas clave",
+ links:[13,25,42]}
+];
+const gw = {}; // id -> {letter,label,score}
+
+const RESULT_STEP = BLOCKS.length + 2;
+let currentStep = 0;
+const answers = {}; // qid -> {label, score, tag, blockKey}
+let qCounter = 0;
+
+/* build blocks */
+const blocksHost = document.getElementById('blocksHost');
+BLOCKS.forEach((block, bi) => {
+  const stepIndex = bi + 2;
+  const div = document.createElement('div');
+  div.className = 'card step';
+  div.dataset.step = stepIndex;
+  div.style.display = 'none';
+
+  let qHtml = '';
+  block.q.forEach((item) => {
+    qCounter++;
+    const qid = 'q' + qCounter;
+    let optsHtml = '';
+    item.o.forEach((opt, oi) => {
+      optsHtml += `<div class="opt" data-qid="${qid}" data-oi="${oi}" onclick="selectOpt(this)"><span class="dot"></span><span>${opt[0]}</span></div>`;
+    });
+    qHtml += `
+      <div class="q">
+        <div class="qtext"><span class="qnum">${String(qCounter).padStart(2,'0')}</span><span>${item.t}</span></div>
+        <div class="options">${optsHtml}</div>
+      </div>`;
+  });
+
+  div.innerHTML = `
+    <div class="block-head">
+      <div class="block-icon">${block.icon}</div>
+      <div><p class="block-title">${block.title}</p><p class="block-sub">${block.sub}</p></div>
+    </div>
+    ${qHtml}
+    <div class="warn" id="warn-${stepIndex}">Selecciona una respuesta en cada pregunta para continuar.</div>
+    <div class="nav">
+      <button type="button" class="btn" onclick="goPrev()">← Anterior</button>
+      <button type="button" class="btn primary" onclick="goNext()">Siguiente →</button>
+    </div>
+  `;
+  blocksHost.appendChild(div);
+});
+
+/* build paso Gemba Walk (paso 1) */
+const gembaHost = document.getElementById('gembaHost');
+(function(){
+  const div = document.createElement('div');
+  div.className = 'card step';
+  div.dataset.step = 1;
+  div.style.display = 'none';
+  let html = `
+    <div class="block-head">
+      <div class="block-icon">◎</div>
+      <div><p class="block-title">Gemba Walk — 5 preguntas estratégicas</p><p class="block-sub">RECORRIDO DE PLANTA · TRAZABLE POR EVIDENCIA Y FUENTE</p></div>
+    </div>
+    <p class="spin-lede" style="margin-top:0;">Por cada pregunta: elige la letra que describe lo que ves o te muestran, indica la fuente y anota la evidencia. Una declaración del personal no es un hecho verificado. Si no hay evidencia, elige D y anota qué falta validar. De A (mayor control) a C (menor control); D = sin información o validación pendiente.</p>`;
+  GEMBA.forEach((g, gi) => {
+    const opts = g.o.map((op, oi) => `<div class="opt" data-gid="${g.id}" data-oi="${oi}" onclick="selectGw(this)"><span class="dot"></span><span><b>${'ABCD'[oi]})</b> ${op[0]}</span></div>`).join('');
+    html += `
+      <div class="gw-q">
+        <div class="gw-eje"><span class="gw-id">${g.id}</span>${g.eje}</div>
+        <div class="qtext"><span>${g.t}</span></div>
+        <div class="gw-opts">${opts}</div>
+        <div class="gw-meta"><b>Evidencia a observar o pedir:</b> ${g.evid}<br><b>Riesgo a validar:</b> ${g.riesgo}${g.nota ? `<br><b>Ojo:</b> ${g.nota}` : ''}</div>
+        <div class="gw-fields">
+          <div class="field"><label>Fuente de la respuesta</label>
+            <select id="gwSrc-${gi}"><option value="">Selecciona</option><option>Observación directa</option><option>Documental</option><option>Declaración del personal</option></select></div>
+          <div class="field"><label>Entrevistado / área</label><input type="text" id="gwWho-${gi}" placeholder="Ej. Supervisor de mecanizado"></div>
+          <div class="field full"><label>Evidencia registrada (qué viste o recibiste)</label>
+            <textarea id="gwEv-${gi}" rows="2" placeholder="Documento, registro, ciclo observado, fecha... En D: qué falta validar."></textarea></div>
+        </div>
+      </div>`;
+  });
+  html += `
+    <div class="warn" id="warn-1">En cada pregunta elige una letra, la fuente y anota la evidencia (en D, anota qué falta validar).</div>
+    <div class="nav">
+      <button type="button" class="btn" onclick="goPrev()">← Anterior</button>
+      <button type="button" class="btn primary" onclick="goNext()">Siguiente →</button>
+    </div>`;
+  div.innerHTML = html;
+  gembaHost.appendChild(div);
+})();
+
+function selectGw(el){
+  const gid = el.dataset.gid;
+  const oi = parseInt(el.dataset.oi);
+  document.querySelectorAll(`.opt[data-gid="${gid}"]`).forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  const def = GEMBA.find(g => g.id === gid);
+  const op = def.o[oi];
+  gw[gid] = {letter:'ABCD'[oi], label:op[0], score:op[1]};
+}
+function gembaComplete(){
+  return GEMBA.every((g, i) => gw[g.id] && val('gwSrc-' + i) && val('gwEv-' + i));
+}
+
+/* map qid -> block/tag/options for scoring */
+const QMETA = {};
+(function(){
+  let idx = 0;
+  BLOCKS.forEach(block=>{
+    block.q.forEach(item=>{
+      idx++;
+      QMETA['q'+idx] = {blockKey:block.key, blockTitle:block.title, tag:item.tag||null, text:item.t, options:item.o};
+    });
+  });
+})();
+
+function selectOpt(el){
+  const qid = el.dataset.qid;
+  const oi = parseInt(el.dataset.oi);
+  document.querySelectorAll(`.opt[data-qid="${qid}"]`).forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  const meta = QMETA[qid];
+  const opt = meta.options[oi];
+  answers[qid] = {label:opt[0], score:opt[1], tag:meta.tag, blockKey:meta.blockKey};
+}
+
+/* result step (built once, content generated on arrival) */
+const resultHost = document.getElementById('resultHost');
+resultHost.innerHTML = `
+  <div class="card step" data-step="${RESULT_STEP}" style="display:none;">
+    <div class="block-head">
+      <div class="block-icon">✓</div>
+      <div><p class="block-title">Reporte ejecutivo y plan de acción</p><p class="block-sub">GENERADO AUTOMÁTICAMENTE A PARTIR DE TUS RESPUESTAS</p></div>
+    </div>
+    <div id="resultBody"></div>
+    <div class="pdf-callout" id="pdfCallout">
+      <div>
+        <b>Comparte este diagnóstico →</b> envía el resumen por WhatsApp o correo y copia el reporte completo para pegarlo en el mensaje. Correo de RECSI CNC: <b>direccion.recsicnc@gmail.com</b>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn primary" onclick="copyDiagnosticText()">Copiar reporte completo →</button>
+        <a class="btn orange" id="waLink" href="https://wa.me/" target="_blank" rel="noopener">Enviar por WhatsApp →</a>
+        <a class="btn" id="mailLink" href="mailto:direccion.recsicnc@gmail.com" onclick="showMailHint()">Abrir correo →</a>
+      </div>
+    </div>
+    <div class="nav" style="flex-wrap:wrap;">
+      <button type="button" class="btn" onclick="goPrev()">← Anterior</button>
+      <button type="button" class="btn small" onclick="copyMailAddress()">Copiar correo de RECSI</button>
+    </div>
+    <div id="copyMsg" style="margin-top:8px; font-family:var(--font-mono); font-size:11.5px; color:var(--teal); display:none;"></div>
+    <textarea id="copyFallback" class="copy-fallback" readonly></textarea>
+    <div id="mailMsg" style="margin-top:8px; font-family:var(--font-mono); font-size:11.5px; color:var(--teal); display:none;">Si no se abrió tu app de correo, copia el reporte y envíalo a direccion.recsicnc@gmail.com.</div>
+  </div>
+`;
+
+/* progress */
+function renderProgress(){
+  const bar = document.getElementById('progress');
+  const label = document.getElementById('progressLabel');
+  bar.innerHTML = '';
+  for(let i=0;i<=RESULT_STEP;i++){
+    const seg = document.createElement('div');
+    seg.className = 'seg' + (i<currentStep?' done':(i===currentStep?' current':''));
+    bar.appendChild(seg);
+  }
+  const names = ['Datos', 'Gemba Walk', ...BLOCKS.map(b=>b.title.split('. ')[1]), 'Reporte ejecutivo'];
+  label.innerHTML = `<span>PASO ${currentStep+1} / ${RESULT_STEP+1}</span><span>${names[currentStep]}</span>`;
+}
+
+function showStep(n){
+  document.querySelectorAll('.step').forEach(el=>{ el.style.display = (parseInt(el.dataset.step)===n)?'block':'none'; });
+  currentStep = n; renderProgress(); window.scrollTo({top:0,behavior:'smooth'});
+  if(n===RESULT_STEP) buildResult();
+}
+
+function goNext(){
+  if(currentStep===0){
+    const required=['consultorNombre','empresa','contacto'];
+    for(const id of required){
+      if(!document.getElementById(id).value.trim()){
+        document.getElementById(id).style.borderColor='var(--orange)'; document.getElementById(id).focus(); return;
+      }
+    }
+  } else if(currentStep===1){
+    if(!gembaComplete()){ document.getElementById('warn-1').classList.add('show'); return; }
+    document.getElementById('warn-1').classList.remove('show');
+  } else if(currentStep>=2 && currentStep<=BLOCKS.length+1){
+    const block = BLOCKS[currentStep-2];
+    const missing = block.q.some((item,i)=>{
+      const qidGlobal = getGlobalQid(currentStep-2, i);
+      return !answers[qidGlobal];
+    });
+    if(missing){ document.getElementById('warn-'+currentStep).classList.add('show'); return; }
+    document.getElementById('warn-'+currentStep).classList.remove('show');
+  }
+  if(currentStep<RESULT_STEP) showStep(currentStep+1);
+}
+function goPrev(){ if(currentStep>0) showStep(currentStep-1); }
+
+function getGlobalQid(blockIdx, qIdxInBlock){
+  let count=0;
+  for(let i=0;i<blockIdx;i++) count+=BLOCKS[i].q.length;
+  return 'q'+(count+qIdxInBlock+1);
+}
+
+function collectMeta(){
+  return {
+    consultorNombre: val('consultorNombre'), fecha: val('fecha'), empresa: val('empresa'),
+    contacto: val('contacto'), puesto: val('puesto'), celular: val('celular'),
+    email: val('email'), decision: val('decision'),
+    spinSituacion: val('spinSituacion'), spinProblema: val('spinProblema'),
+    spinImplicacion: val('spinImplicacion'), spinNecesidad: val('spinNecesidad')
+  };
+}
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function tagVal(tag){
+  for(const qid in answers){ if(answers[qid].tag===tag) return answers[qid].label; }
+  return null;
+}
+
+/* ============ SCORING + PLAN DE ACCIÓN ============ */
+const BLOCK_LABELS = {
+  contexto:"Contexto del negocio", proceso:"Estandarización del proceso", dolor:"Dolor y fricción operativa",
+  datos:"Madurez de datos e información", usuarios:"Adopción de usuarios y roles", impacto:"Impacto económico y urgencia"
+};
+
+function computeScores(){
+  const byBlock = {};
+  BLOCKS.forEach(b=>byBlock[b.key]={sum:0,max:0,count:0});
+  Object.values(answers).forEach(a=>{
+    if(a.score!==null && a.score!==undefined){
+      byBlock[a.blockKey].sum += a.score;
+      byBlock[a.blockKey].max += 3;
+      byBlock[a.blockKey].count++;
+    }
+  });
+  const result = {};
+  let totalSum=0, totalMax=0;
+  Object.keys(byBlock).forEach(k=>{
+    const b = byBlock[k];
+    const pct = b.max>0 ? Math.round((b.sum/b.max)*100) : null;
+    result[k] = {pct, sum:b.sum, max:b.max};
+    totalSum+=b.sum; totalMax+=b.max;
+  });
+  result._total = totalMax>0 ? Math.round((totalSum/totalMax)*100) : 0;
+  return result;
+}
+
+function levelFor(pct){
+  if(pct===null) return {tag:'—', cls:''};
+  if(pct<40) return {tag:'Crítico', cls:'critico'};
+  if(pct<65) return {tag:'En riesgo', cls:'riesgo'};
+  if(pct<85) return {tag:'Estable', cls:'estable'};
+  return {tag:'Óptimo', cls:'optimo'};
+}
+
+const MITIGATION = {
+  proceso: {
+    riesgo:"El proceso analizado no está estandarizado ni documentado de forma consistente: los resultados dependen de quién lo ejecute, lo que genera variabilidad, retrabajo y dificultad para escalar o certificar (IATF/ISO).",
+    accion:"Levantamiento y documentación de SOP / hoja de proceso, definición clara de roles por etapa (Estandarización Técnica — fase ETOT), y validación con el equipo antes de introducir cualquier automatización."
+  },
+  dolor: {
+    riesgo:"Existe fricción operativa recurrente: fallas frecuentes, dependencia de personas clave y desgaste del equipo, lo que eleva el riesgo de paro no programado y rotación de personal crítico.",
+    accion:"Aplicar SMED en los puntos de mayor pérdida de tiempo, redistribuir el conocimiento crítico (evitar dependencia de una sola persona) y establecer un tablero simple de causas raíz (Transformación Operativa)."
+  },
+  datos: {
+    riesgo:"La información relevante está dispersa, se actualiza de forma manual o irregular, y presenta errores con cierta frecuencia — esto compromete la calidad de cualquier decisión basada en datos.",
+    accion:"Centralizar la captura en un solo sistema (ERP/MES o dashboard ligero), automatizar la actualización de los indicadores críticos y eliminar la doble captura (Operación con Datos)."
+  },
+  usuarios: {
+    riesgo:"La adopción del equipo es incierta: roles poco claros, resistencia al cambio o falta de un responsable interno del proyecto pueden frenar la implementación aunque la solución técnica sea correcta.",
+    accion:"Definir un responsable interno desde el arranque, plan de capacitación breve y gradual, y comunicación temprana de beneficios al equipo que va a adoptar la solución (Talento Habilitado)."
+  },
+  impacto: {
+    riesgo:"El costo de no actuar es significativo (horas, dinero o riesgo de cliente) y la urgencia percibida es alta — mantener el problema sin intervención compromete resultados en el corto plazo.",
+    accion:"Priorizar este proceso como Quick Win (0–3 meses) dentro del roadmap, con una métrica de éxito medible desde la primera semana de intervención."
+  },
+  contexto: {
+    riesgo:"El negocio no tiene claramente priorizada el área de mayor impacto, lo que puede dispersar esfuerzos y presupuesto en frentes de bajo retorno.",
+    accion:"Confirmar con dirección el enfoque único de esta primera intervención antes de expandir a otras áreas, usando el problema de mayor impacto declarado como criterio de priorización."
+  }
+};
+
+function packageFor(totalPct){
+  if(totalPct<40) return {name:"Elite / Gold", detail:"Madurez operativa baja en múltiples frentes: se recomienda una intervención integral (varias fases ETOT en paralelo) con acompañamiento cercano."};
+  if(totalPct<65) return {name:"Silver / Gold", detail:"Hay bases operativas, pero brechas relevantes en al menos 2 bloques: se recomienda un paquete de alcance medio, priorizando los bloques críticos primero."};
+  if(totalPct<85) return {name:"Bronce / Silver", detail:"Operación relativamente estable con oportunidades puntuales: un diagnóstico focalizado y quick wins específicos pueden ser suficientes."};
+  return {name:"Retainer de mantenimiento", detail:"Madurez operativa alta: se recomienda un esquema de seguimiento periódico (retainer) más que una intervención mayor."};
+}
+
+function buildResult(){
+  const scores = computeScores();
+  const meta = collectMeta();
+  const body = document.getElementById('resultBody');
+
+  let scoreHtml = `<div style="margin-bottom:18px;">`;
+  BLOCKS.forEach(b=>{
+    const s = scores[b.key];
+    const lvl = levelFor(s.pct);
+    const barColor = lvl.cls==='critico'?'var(--red)':lvl.cls==='riesgo'?'var(--orange)':lvl.cls==='estable'?'var(--amber)':'var(--teal)';
+    scoreHtml += `
+      <div class="scorebar-row">
+        <div class="scorebar-label">${BLOCK_LABELS[b.key]}</div>
+        <div class="scorebar-track"><div class="scorebar-fill" style="width:${s.pct===null?0:s.pct}%;background:${barColor};"></div></div>
+        <div class="scorebar-pct">${s.pct===null?'—':s.pct+'%'}</div>
+        <span class="tag ${lvl.cls}">${lvl.tag}</span>
+      </div>`;
+  });
+  scoreHtml += `</div>`;
+
+  // ordenar bloques puntuables por pct ascendente (peor primero) para el plan
+  const scorable = BLOCKS.filter(b=>scores[b.key].pct!==null).sort((a,b)=>scores[a.key].pct-scores[b.key].pct);
+  const top3 = scorable.slice(0,3);
+
+  let planHtml = `<div class="plan-section"><h3>Plan de acción priorizado</h3>`;
+  top3.forEach((b,i)=>{
+    const s = scores[b.key];
+    const lvl = levelFor(s.pct);
+    const cls = lvl.cls==='critico'?'crit':lvl.cls==='riesgo'?'risk':'ok';
+    const m = MITIGATION[b.key];
+    planHtml += `<div class="plan-item ${cls}"><b>Prioridad ${i+1} — ${BLOCK_LABELS[b.key]} (${s.pct}%, ${lvl.tag}):</b> ${m.accion}</div>`;
+  });
+  planHtml += `</div>`;
+
+  let mitHtml = `<div class="plan-section"><h3>Análisis de mitigación de errores</h3>`;
+  top3.forEach(b=>{
+    const m = MITIGATION[b.key];
+    mitHtml += `<div class="plan-item risk"><b>${BLOCK_LABELS[b.key]}:</b> ${m.riesgo}</div>`;
+  });
+  mitHtml += `</div>`;
+
+  const pkg = packageFor(scores._total);
+  const problemaClave = tagVal('problemaClave') || '—';
+  const areaFoco = tagVal('areaFoco') || '—';
+
+  const pkgHtml = `
+    <div class="package-box">
+      <b>ÍNDICE GLOBAL DE MADUREZ: ${scores._total}%</b><br><br>
+      Área de foco declarada: <b>${areaFoco}</b> · Problema de mayor impacto: <b>${problemaClave}</b><br>
+      Paquete recomendado como punto de partida: <b>${pkg.name}</b><br>
+      ${pkg.detail}
+    </div>`;
+
+  const model = buildReportModel(scores, meta);
+  window.__model = model;
+  window.__lastBody = null;
+  body.innerHTML = `<div class="rep">${reportHTML(model)}</div>` +
+    `<div class="plan-section"><h3>Complemento — checklist de 60 preguntas</h3></div>` +
+    scoreHtml + planHtml + mitHtml + pkgHtml;
+
+  // cache para el envío
+  window.__planCache = {scores, top3: top3.map(b=>b.key), pkg, problemaClave, areaFoco};
+  const resumen = buildMailSummary();
+  const wa = document.getElementById('waLink');
+  if(wa) wa.href = 'https://wa.me/?text=' + encodeURIComponent(resumen);
+  const ml = document.getElementById('mailLink');
+  if(ml) ml.href = 'mailto:' + DEST_EMAIL + '?subject=' + encodeURIComponent('Diagnóstico Discovery Express — ' + (meta.empresa || 'Sin empresa')) + '&body=' + encodeURIComponent(resumen);
+}
+
+/* ============ GEMBA WALK: TRAZABILIDAD + REPORTE EJECUTIVO ============ */
+function gwRead(){
+  return GEMBA.map((def, i) => {
+    const g = gw[def.id] || {};
+    const fuente = val('gwSrc-' + i), evidencia = val('gwEv-' + i), quien = val('gwWho-' + i);
+    const noData = (g.score === null || g.score === undefined);
+    let st;
+    if(noData) st = {k:'hip', t:'Hipótesis por validar'};
+    else if(fuente === 'Observación directa' || fuente === 'Documental') st = {k:'conf', t:'Hallazgo confirmado'};
+    else st = {k:'decl', t:'Declarado, no verificado'};
+    const linked = def.links.map(n => ({n, a:answers['q' + n]})).filter(x => x.a && x.a.score !== null && x.a.score !== undefined);
+    let conc = {k:'na', t:'Sin datos del checklist'};
+    if(linked.length){
+      const avg = linked.reduce((s, x) => s + x.a.score, 0) / linked.length;
+      if(noData) conc = {k:'pend', t:'Pendiente de validar; el checklist sugiere nivel ' + avg.toFixed(1) + '/3'};
+      else if(Math.abs(g.score - avg) > 1) conc = {k:'dif', t:'Discrepancia (Gemba ' + g.score + '/3 vs. checklist ' + avg.toFixed(1) + '/3): validar en planta'};
+      else conc = {k:'ok', t:'Concordante (Gemba ' + g.score + '/3 vs. checklist ' + avg.toFixed(1) + '/3)'};
+    }
+    return {def, g, fuente, evidencia, quien, st, conc, linked, noData};
+  });
+}
+
+function gwPrioridad(r){
+  if(r.noData) return 'Por definir tras validar';
+  const base = r.g.score === 1 ? 'Alta' : (r.g.score === 2 ? 'Media' : 'Baja (monitoreo)');
+  return base + (r.st.k === 'conf' ? '' : ' (por validar)');
+}
+
+function buildReportModel(scores, meta){
+  const rows = gwRead();
+  const emp = meta.empresa || 'la empresa';
+  const nConf = rows.filter(r => r.st.k === 'conf').length;
+  const nDecl = rows.filter(r => r.st.k === 'decl').length;
+  const nHip = rows.filter(r => r.st.k === 'hip').length;
+  const scored = rows.filter(r => !r.noData);
+  const gwPct = scored.length ? Math.round(scored.reduce((s, r) => s + r.g.score, 0) / (3 * scored.length) * 100) : null;
+  const orden = [...scored].sort((a, b) => a.g.score - b.g.score);
+  const top = orden.slice(0, 3);
+  const pend = rows.filter(r => r.st.k !== 'conf');
+  const ejeDebil = orden.length ? orden[0].def.eje : null;
+  const pkg = packageFor(scores._total);
+  const lab = n => answers['q' + n] ? answers['q' + n].label : 'sin respuesta';
+  const S = [];
+
+  window.__gwSummary = {pct:gwPct, nConf, nDecl, nHip};
+
+  S.push({h:'A. Resumen ejecutivo', items:[
+    {p:`Diagnóstico preliminar para ${emp}, a cargo de ${meta.consultorNombre || 'RECSI CNC'}${meta.fecha ? ' (' + meta.fecha + ')' : ''}. Combina un Gemba Walk de 5 ejes, con fuente y evidencia por respuesta, y el checklist Discovery Express de 60 preguntas, y los contrasta para separar hechos de hipótesis.`},
+    {p:`Resultado: índice global de madurez ${scores._total}%; índice Gemba ${gwPct === null ? 'sin datos' : gwPct + '%'}. Hallazgos: ${nConf} confirmado(s), ${nDecl} declarado(s) sin verificar y ${nHip} hipótesis por validar.`},
+    {p:`Problema señalado por el cliente (textual): ${meta.spinProblema || '(sin registrar)'}`},
+    {p: ejeDebil ? `Eje con menor madurez observada: ${ejeDebil}.` : 'Aún no hay ejes con dato suficiente para priorizar.'},
+    {p:'Decisiones que facilita: qué eje atender primero, qué hipótesis validar antes de invertir, y el alcance e inversión del diagnóstico especializado.'}
+  ]});
+
+  S.push({h:'B. Enfoque', items:[
+    {p:'Consultoría especializada y certificada (Consultoría + Certificación + Desarrollo de Competencias CNC), basada en evidencia de planta, análisis de causa raíz y mejora medible del desempeño productivo. No se propone una solución sin conocer su causa raíz.'}
+  ]});
+
+  S.push({h:'C. Alcance', items:[
+    {p:'Incluye:'},
+    {ul:['Gemba Walk de 5 ejes: tiempo de ciclo, utilización CNC, herramientas de corte, calidad y estandarización/competencias.',
+         'Checklist Discovery Express de 60 preguntas, usado para contrastar cada hallazgo.',
+         'Matriz de hallazgos con pregunta, respuesta, evidencia, fuente y estatus.']},
+    {p:'Por validar:'},
+    {ul: pend.length ? pend.map(r => `${r.def.id} ${r.def.eje}: ${r.st.t.toLowerCase()}. Información necesaria: ${r.def.evid}`) : ['Todos los ejes cuentan con evidencia verificada.']},
+    {p:'Exclusiones:'},
+    {ul:['No es una auditoría oficial, certificación aeroespacial ni evaluación de cumplimiento normativo.',
+         'No incluye cuantificación económica definitiva ni ahorros garantizados: los beneficios son hipótesis condicionadas a datos de planta.']}
+  ]});
+
+  S.push({h:'D. Matriz de hallazgos (trazabilidad)', items:[
+    {table:{
+      head:['ID','Pregunta y respuesta','Fuente y evidencia','Estatus','Concordancia con el checklist','Riesgo a validar','Prioridad'],
+      rows: rows.map(r => [
+        r.def.id,
+        `${r.def.eje} — ${r.g.letter ? r.g.letter + ') ' : ''}${r.g.label || '(sin respuesta)'}`,
+        `${r.fuente || '—'}${r.quien ? ' (' + r.quien + ')' : ''}. ${r.evidencia || '(sin evidencia)'}`,
+        r.st.t,
+        r.conc.t + (r.linked.length ? ' — ' + r.linked.map(x => `P${x.n}: ${x.a.label} (${x.a.score}/3)`).join('; ') : ''),
+        r.def.riesgo,
+        gwPrioridad(r)
+      ])
+    }}
+  ]});
+
+  S.push({h:'E. Priorización', items:[
+    {p:'Criterios: impacto económico potencial, urgencia, viabilidad y calidad de la evidencia. Los hallazgos confirmados se atienden primero; las hipótesis se validan antes de proponer inversión.'},
+    {ul: [...orden, ...rows.filter(r => r.noData)].map((r, i) => `${i + 1}. ${r.def.id} ${r.def.eje}: prioridad ${gwPrioridad(r).toLowerCase()}; ${r.st.t.toLowerCase()}.`)},
+    {p:'Contexto declarado en el checklist (no verificado):'},
+    {ul:[`Horas perdidas por semana: ${lab(51)}.`, `Costo mensual estimado del problema: ${lab(52)}.`, `Si se mantiene 6 meses: ${lab(53)}.`, `Urgencia: ${lab(59)}.`, `Responsable interno del proyecto: ${lab(47)}.`]},
+    {p:`Calidad de la evidencia: ${nConf} de ${rows.length} ejes con observación directa o documento.`}
+  ]});
+
+  S.push({h:'F. Propuesta de valor e intervención', items:[
+    {p:`Problema a resolver: ${meta.spinProblema || (ejeDebil ? 'eje de menor madurez observada: ' + ejeDebil : 'por definir tras validar las hipótesis')}.`},
+    {p:'Por qué investigar antes de invertir: intervenir sin conocer la causa raíz puede gastar presupuesto en el síntoma y, en un entorno aeroespacial, un cambio de proceso puede exigir re-calificación (FAI). Validar primero permite decidir con evidencia.'},
+    {p:'Intervención propuesta, en orden de prioridad:'},
+    {ul: [
+      ...top.map(r => `${r.def.id} ${r.def.eje}: ${r.def.opp}${r.def.nota ? ' ' + r.def.nota : ''}`),
+      ...rows.filter(r => r.noData).map(r => `${r.def.id} ${r.def.eje}: validación en planta antes de definir la intervención.`),
+      'Diagnóstico profundo con análisis de causa raíz de los ejes priorizados.'
+    ]},
+    {p:'Entregables:'},
+    {ul:['Informe de hallazgos con evidencia, fuente y estatus por pregunta.','Línea base de indicadores por eje.','Análisis de causa raíz de los ejes priorizados.','Plan de acción a 90 días con responsables y metas por acordar.','Evaluación de certificaciones de competencias pertinentes para el personal clave.']},
+    {p:'Cómo se medirá: con los indicadores de la sección G, con línea base en los primeros 30 días y revisión a 30, 60 y 90 días.'},
+    {p:'Riesgo que se reduce: decidir una inversión (herramienta, tecnología o capacitación) sin haber comprobado dónde está la pérdida ni qué cambios requieren re-calificación.'},
+    {p:'Diferencia de RECSI CNC: parte de evidencia de planta, mide contra una línea base y da seguimiento hasta verificar el resultado; no es capacitación genérica ni una recomendación técnica sin seguimiento, y no vende herramientas ni maquinaria.'},
+    {p:`Medición de éxito según el cliente (textual, no verificada): ${meta.spinImplicacion || '(sin registrar)'}`},
+    {p:`Impacto esperado según el cliente (textual, no verificado): ${meta.spinNecesidad || '(sin registrar)'}`},
+    {p:`Punto de partida de paquete según el checklist: ${pkg.name}.`}
+  ]});
+
+  S.push({h:'G. Beneficios esperados e indicadores de éxito', items:[
+    {p:`Las cifras económicas son referencias declaradas (horas perdidas por semana: ${lab(51)}; costo mensual estimado: ${lab(52)}). Los beneficios son hipótesis condicionadas hasta contar con datos de planta.`},
+    {table:{
+      head:['Eje','Beneficio potencial (hipótesis)','Indicador y línea base','Meta y método de medición','Responsable y seguimiento'],
+      rows: rows.map(r => [
+        r.def.eje,
+        r.def.benef,
+        `${r.def.kpi}. Línea base: ${r.st.k === 'conf' ? 'a partir de la evidencia registrada' : 'por medir'}.`,
+        `Meta por acordar con ${emp}. Método: ${r.def.metodo}.`,
+        'Responsable por definir en el área. Revisión a 30, 60 y 90 días.'
+      ])
+    }}
+  ]});
+
+  S.push({h:'H. Plan de acción 30-60-90 días', items:[
+    {table:{
+      head:['Fase','Actividades','Resultado esperado'],
+      rows:[
+        ['0–30 días', `Validar hipótesis pendientes${pend.length ? ' (' + pend.map(r => r.def.id).join(', ') + ')' : ''}; levantar la línea base de los indicadores; acordar alcance, recursos y responsables.`, 'Hallazgos confirmados y línea base documentada.'],
+        ['31–60 días', `Análisis de causa raíz${top.length ? ' en ' + top.slice(0, 2).map(r => r.def.eje).join(' y ') : ''}; definir acciones de mejora y revisar cuáles requieren re-calificación.`, 'Causas raíz priorizadas y acciones aprobadas.'],
+        ['61–90 días', 'Pilotos acotados de mejora, estandarización (SOP, hojas de proceso), desarrollo de competencias y medición contra la línea base.', 'Resultados medidos y plan de sostenimiento.']
+      ]
+    }},
+    {p:'Fases sujetas a la validación del alcance y de los recursos.'}
+  ]});
+
+  S.push({h:'I. Próximo paso', items:[
+    {p:'Reunión técnica para revisar los hallazgos, validar datos y acordar un diagnóstico especializado con alcance, entregables, calendario e inversión definidos.'},
+    {p:`Contacto: ${meta.contacto || '—'}${meta.puesto ? ' (' + meta.puesto + ')' : ''}. Participación en la decisión: ${meta.decision || '—'}.`},
+    {p:'Este diagnóstico preliminar no constituye una auditoría oficial, certificación aeroespacial ni evaluación de cumplimiento normativo, y no garantiza ahorros.'}
+  ]});
+
+  return S;
+}
+
+function reportHTML(m){
+  return m.map(s => {
+    let h = `<h2>${esc(s.h)}</h2>`;
+    s.items.forEach(it => {
+      if(it.p !== undefined) h += `<p>${esc(it.p)}</p>`;
+      else if(it.ul) h += `<ul>${it.ul.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+      else if(it.table) h += `<div class="tbl-wrap"><table class="p-table"><tr>${it.table.head.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${it.table.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+    });
+    return h;
+  }).join('');
+}
+
+function reportText(m){
+  let t = '';
+  m.forEach(s => {
+    t += `\n${s.h.toUpperCase()}\n------------------------------------------------\n`;
+    s.items.forEach(it => {
+      if(it.p !== undefined) t += `${it.p}\n`;
+      else if(it.ul) it.ul.forEach(x => { t += `- ${x}\n`; });
+      else if(it.table) it.table.rows.forEach(r => { t += r.map((c, i) => `${it.table.head[i]}: ${c}`).join(' | ') + '\n'; });
+    });
+  });
+  return t;
+}
+
+/* ============ ENVÍO ============ */
+function buildEmailBody(){
+  const meta = collectMeta();
+  const scores = window.__planCache.scores;
+  const pkg = window.__planCache.pkg;
+
+  let body = `DIAGNÓSTICO DISCOVERY EXPRESS — RECSI CNC (OPCIÓN MÚLTIPLE)\n`;
+  body += `================================================\n`;
+  body += `Consultor certificado: ${meta.consultorNombre}\n`;
+  body += `Fecha: ${meta.fecha || '—'}\n\n`;
+  body += `Empresa: ${meta.empresa}\nContacto: ${meta.contacto}\nPuesto: ${meta.puesto || '—'}\n`;
+  body += `Celular: ${meta.celular || '—'}\nEmail: ${meta.email || '—'}\nParticipación en decisión: ${meta.decision || '—'}\n`;
+  body += `================================================\n\n`;
+  body += `CONVERSACIÓN PREVIA — MARCO SPIN\n------------------------------------------------\n`;
+  body += `[S] Situación: ${meta.spinSituacion || '(sin registrar)'}\n\n`;
+  body += `[P] Problema: ${meta.spinProblema || '(sin registrar)'}\n\n`;
+  body += `[I] Implicación: ${meta.spinImplicacion || '(sin registrar)'}\n\n`;
+  body += `[N/B] Necesidad/Beneficio: ${meta.spinNecesidad || '(sin registrar)'}\n\n`;
+  body += `================================================\n\n`;
+  body += `REPORTE EJECUTIVO — GEMBA WALK + CHECKLIST\n================================================\n` + reportText(window.__model) + `\n================================================\n\n`;
+  body += `ÍNDICE GLOBAL DE MADUREZ: ${scores._total}%\n`;
+  body += `Paquete recomendado: ${pkg.name}\n${pkg.detail}\n\n`;
+
+  body += `PUNTAJE POR BLOQUE\n------------------------------------------------\n`;
+  BLOCKS.forEach(b=>{
+    const s = scores[b.key];
+    body += `${BLOCK_LABELS[b.key]}: ${s.pct===null?'N/A':s.pct+'%'} (${levelFor(s.pct).tag})\n`;
+  });
+
+  body += `\nPLAN DE ACCIÓN PRIORIZADO\n------------------------------------------------\n`;
+  window.__planCache.top3.forEach((k,i)=>{
+    body += `${i+1}. ${BLOCK_LABELS[k]}: ${MITIGATION[k].accion}\n`;
+  });
+
+  body += `\nANÁLISIS DE MITIGACIÓN DE ERRORES\n------------------------------------------------\n`;
+  window.__planCache.top3.forEach((k)=>{
+    body += `- ${BLOCK_LABELS[k]}: ${MITIGATION[k].riesgo}\n`;
+  });
+
+  body += `\n================================================\nCHECKLIST COMPLETO — 60 RESPUESTAS\n================================================\n`;
+  let idx=0;
+  BLOCKS.forEach(block=>{
+    body += `\n${block.title.toUpperCase()}\n------------------------------------------------\n`;
+    block.q.forEach(item=>{
+      idx++;
+      const a = answers['q'+idx];
+      body += `${idx}. ${item.t}\n   → ${a ? a.label : '(sin respuesta)'}\n`;
+    });
+  });
+  return body;
+}
+
+function buildMailSummary(){
+  const meta = collectMeta();
+  const scores = window.__planCache.scores;
+  const pkg = window.__planCache.pkg;
+  let body = `DIAGNÓSTICO DISCOVERY EXPRESS — RECSI CNC\n`;
+  body += `================================================\n`;
+  body += `Empresa: ${meta.empresa}\n`;
+  body += `Contacto: ${meta.contacto} (${meta.puesto || '—'})\n`;
+  body += `Consultor certificado: ${meta.consultorNombre}\n`;
+  body += `Fecha: ${meta.fecha || '—'}\n\n`;
+  body += `Índice global de madurez: ${scores._total}%\n`;
+  const gs = window.__gwSummary || {};
+  body += `Índice Gemba Walk: ${gs.pct == null ? 'sin datos' : gs.pct + '%'} (${gs.nConf || 0} confirmado(s), ${gs.nDecl || 0} declarado(s), ${gs.nHip || 0} hipótesis)\n`;
+  body += `Paquete recomendado: ${pkg.name}\n\n`;
+  body += `[Pega aquí el reporte completo copiado desde Discovery Express]\n`;
+  return body;
+}
+
+function openMailDirect(){
+  ensureCache();
+  const meta = window.__lastMeta || collectMeta();
+  const subject = encodeURIComponent(`Diagnóstico Discovery Express — ${meta.empresa || 'Sin empresa'}`);
+  const bodyEnc = encodeURIComponent(buildMailSummary());
+  const mailto = `mailto:${DEST_EMAIL}?subject=${subject}&body=${bodyEnc}`;
+  window.location.href = mailto;
+  const msg = document.getElementById('mailMsg');
+  if(msg){ msg.style.display='block'; setTimeout(()=>msg.style.display='none', 9000); }
+}
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildPrintHTML(){
+  const meta = collectMeta();
+  const scores = window.__planCache.scores;
+  const pkg = window.__planCache.pkg;
+  let html = `
+    <div class="p-eyebrow">RECSI CNC — Red Especializada y Certificada en Servicios de Ingeniería CNC</div>
+    <h1>Discovery Express — Diagnóstico y Plan de Acción</h1>
+    <table class="p-meta">
+      <tr><td><b>Empresa</b></td><td>${esc(meta.empresa)}</td><td><b>Fecha</b></td><td>${esc(meta.fecha||'—')}</td></tr>
+      <tr><td><b>Contacto</b></td><td>${esc(meta.contacto)} — ${esc(meta.puesto||'—')}</td><td><b>Consultor</b></td><td>${esc(meta.consultorNombre)}</td></tr>
+    </table>
+
+    <h2>Conversación previa — Marco SPIN</h2>
+    <p><b>[S] Situación:</b> ${esc(meta.spinSituacion || '(sin registrar)')}</p>
+    <p><b>[P] Problema:</b> ${esc(meta.spinProblema || '(sin registrar)')}</p>
+    <p><b>[I] Implicación:</b> ${esc(meta.spinImplicacion || '(sin registrar)')}</p>
+    <p><b>[N/B] Necesidad/Beneficio:</b> ${esc(meta.spinNecesidad || '(sin registrar)')}</p>
+
+    ${reportHTML(window.__model)}
+
+    <h2>Complemento — índice global de madurez: ${scores._total}% — Paquete recomendado: ${esc(pkg.name)}</h2>
+    <p>${esc(pkg.detail)}</p>
+    <table class="p-table">
+      <tr><th>Bloque</th><th>Puntaje</th><th>Estatus</th></tr>
+      ${BLOCKS.map(b=>{const s=scores[b.key]; return `<tr><td>${esc(BLOCK_LABELS[b.key])}</td><td>${s.pct===null?'N/A':s.pct+'%'}</td><td>${esc(levelFor(s.pct).tag)}</td></tr>`;}).join('')}
+    </table>
+
+    <h2>Plan de acción priorizado</h2>
+    <ol>${window.__planCache.top3.map(k=>`<li><b>${esc(BLOCK_LABELS[k])}:</b> ${esc(MITIGATION[k].accion)}</li>`).join('')}</ol>
+
+    <h2>Análisis de mitigación de errores</h2>
+    <ul>${window.__planCache.top3.map(k=>`<li><b>${esc(BLOCK_LABELS[k])}:</b> ${esc(MITIGATION[k].riesgo)}</li>`).join('')}</ul>
+
+    <h2>Checklist completo — 60 respuestas</h2>
+  `;
+  let idx = 0;
+  BLOCKS.forEach(block=>{
+    html += `<h3>${esc(block.title)}</h3><ol class="p-checklist">`;
+    block.q.forEach(item=>{
+      idx++;
+      const a = answers['q'+idx];
+      html += `<li>${esc(item.t)}<br><span class="p-answer">→ ${esc(a ? a.label : '(sin respuesta)')}</span></li>`;
+    });
+    html += `</ol>`;
+  });
+  html += `<div class="p-footer">RECSI CNC · direccion.recsicnc@gmail.com · Consultor certificado: ${esc(meta.consultorNombre)}</div>`;
+  return html;
+}
+
+function downloadPdf(){
+  let printArea = document.getElementById('printArea');
+  if(!printArea){
+    printArea = document.createElement('div');
+    printArea.id = 'printArea';
+    document.body.appendChild(printArea);
+  }
+  printArea.innerHTML = buildPrintHTML();
+  window.print();
+}
+
+function ensureCache(){
+  if(!window.__lastBody){ window.__lastBody = buildEmailBody(); window.__lastMeta = collectMeta(); }
+}
+
+function showNote(text, ok){
+  const msg = document.getElementById('copyMsg');
+  if(!msg) return;
+  msg.textContent = text;
+  msg.style.color = ok ? 'var(--teal)' : 'var(--amber)';
+  msg.style.display = 'block';
+  if(ok) setTimeout(()=>{ msg.style.display='none'; }, 5000);
+}
+function copyText(text, okText){
+  const fb = document.getElementById('copyFallback');
+  function ok(){ if(fb) fb.style.display='none'; showNote(okText, true); }
+  function fail(){
+    if(fb){ fb.value = text; fb.style.display='block'; fb.focus(); fb.select(); }
+    showNote('No se pudo copiar automáticamente. El texto quedó seleccionado abajo: cópialo manualmente.', false);
+  }
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok).catch(fail); }
+    else fail();
+  }catch(e){ fail(); }
+}
+function copyDiagnosticText(){
+  ensureCache();
+  copyText(window.__lastBody || '', 'Reporte copiado. Pégalo en tu correo o en WhatsApp.');
+}
+function copyMailAddress(){ copyText(DEST_EMAIL, 'Correo copiado: ' + DEST_EMAIL); }
+function showMailHint(){
+  const msg = document.getElementById('mailMsg');
+  if(msg){ msg.style.display='block'; setTimeout(()=>{ msg.style.display='none'; }, 9000); }
+}
+
+showStep(0);
+</script>
+
+</body>
+</html>
