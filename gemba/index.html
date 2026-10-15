@@ -147,6 +147,10 @@
   .gw-opts{display:grid;grid-template-columns:1fr;gap:8px;}
   .gw-meta{font-family:var(--font-mono);font-size:10.5px;color:rgba(243,241,234,0.55);line-height:1.55;margin:10px 0 4px;}
   .gw-meta b{color:var(--teal);}
+  .gw-chks{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .field .gw-chk{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.35;color:rgba(243,241,234,0.85);text-transform:none;letter-spacing:0;font-family:var(--font-body);cursor:pointer;}
+  .field .gw-chk input{width:auto;margin-top:2px;}
+  @media (max-width:560px){.gw-chks{grid-template-columns:1fr;}}
   .gw-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
   .gw-fields .full{grid-column:1/-1;}
   @media (max-width:560px){.gw-fields{grid-template-columns:1fr;}}
@@ -196,7 +200,7 @@
   <div class="head">
     <div class="eyebrow">Discovery Express · RECSI CNC</div>
     <h1>Diagnóstico exprés de proceso</h1>
-    <p class="lede">Gemba Walk de 5 preguntas estratégicas (cada respuesta con su fuente y evidencia) más un checklist de 60 preguntas en 6 bloques. Al terminar, el sistema cruza ambos y genera un reporte ejecutivo trazable: enfoque, alcance, matriz de hallazgos, propuesta de valor, beneficios y plan a 90 días.</p>
+    <p class="lede">Gemba Walk de 10 preguntas de opción múltiple y 1 pregunta abierta, todas con fuente y evidencia, más un checklist de 60 preguntas en 6 bloques. Al terminar, el sistema cruza ambos y genera un reporte ejecutivo trazable: enfoque, alcance, matriz de hallazgos, propuesta de valor, beneficios y plan a 90 días.</p>
     <div class="obj-box">
       <b>Objetivo específico →</b> Convertir el recorrido de planta (Gemba Walk) y el checklist en un reporte ejecutivo trazable: cada hallazgo se liga a su pregunta, su evidencia y su fuente, y se contrasta contra el checklist para separar hechos confirmados de hipótesis por validar.
     </div>
@@ -367,67 +371,389 @@ const BLOCKS = [
 ];
 
 const GEMBA = [
-{id:"GW-1", eje:"Productividad y tiempo de ciclo",
- t:"¿Cómo se compara el tiempo de ciclo real con el estándar de la hoja de proceso en las piezas de mayor valor o volumen?",
- o:[["Se mide por pieza o lote, está documentado y las desviaciones se analizan y se atienden.",3],
-    ["Se mide, pero hay desviaciones recurrentes sin causa raíz documentada.",2],
-    ["El estándar existe o se estima, pero no se mide de forma sistemática.",1],
-    ["No hay información suficiente o requiere validación adicional.",null]],
- evid:"Hojas de proceso, registros de tiempo por lote, observación de un ciclo completo en máquina.",
- riesgo:"Capacidad perdida e incumplimiento de entregas.",
- opp:"Estudio de tiempos y optimización de ciclo (estrategia CAM y parámetros de corte).",
- kpi:"Tiempo de ciclo real vs. estándar", metodo:"cronometraje en máquina y registro por lote",
- benef:"Más capacidad y mejor cumplimiento de entregas",
- links:[13,17,51]},
-{id:"GW-2", eje:"Desempeño del mecanizado CNC y utilización de equipos",
- t:"¿Cómo se registran y analizan los tiempos de las máquinas CNC (corte, paro, espera, setup)?",
- o:[["Se registran por causa, se analizan periódicamente (OEE o equivalente) y hay acciones asignadas.",3],
-    ["Se registran horas de paro o producción, pero sin clasificar causas ni dar seguimiento.",2],
-    ["Solo se conoce la producción por turno; los paros se estiman por percepción.",1],
-    ["No hay información suficiente o requiere validación adicional.",null]],
- evid:"Bitácoras de paro, tablero visual, registros del control CNC, entrevista con mantenimiento.",
- riesgo:"Capacidad oculta y costo hora-máquina mal absorbido.",
- opp:"Línea base de OEE, plan SMED y reducción de paros.",
- kpi:"OEE y horas de paro por causa", metodo:"registro por causa de paro durante un periodo definido",
- benef:"Más horas productivas aprovechables",
- links:[21,34,51]},
-{id:"GW-3", eje:"Herramientas de corte: desgaste, rotura y aprovechamiento",
- t:"¿Cómo se define y controla el cambio de herramienta (vida útil, desgaste, rotura)?",
- o:[["Vida definida por operación, registrada, con análisis de modos de falla y costo por filo o pieza.",3],
-    ["Vida definida en programa o por práctica, sin registro de causas de cambio ni costo.",2],
-    ["El cambio depende del criterio del operador (ruido, acabado, rotura), sin estándar.",1],
-    ["No hay información suficiente o requiere validación adicional.",null]],
- evid:"Hojas de herramienta, consumo mensual, herramientas descartadas (observación del desgaste), parámetros Vc/fz/ap/ae.",
- riesgo:"Costo de herramienta, rechazos por desgaste y paros por rotura.",
- nota:"Todo cambio de parámetros puede requerir re-calificación (FAI); distinguirlo en el informe.",
- opp:"Optimización de parámetros y gestión de la vida de herramienta.",
- kpi:"Vida de herramienta y costo por filo o pieza", metodo:"registro de vida útil por operación y consumo mensual",
- benef:"Menor costo de herramienta por pieza y menos paros por rotura",
- links:[18,23,52]},
-{id:"GW-4", eje:"Calidad, retrabajos y prevención de defectos",
- t:"¿Cómo se registran y analizan los rechazos, retrabajos y desperdicio, y cómo se previenen?",
- o:[["Se registran por pieza y causa, con Pareto, causa raíz y verificación de eficacia de las acciones.",3],
-    ["Se registran cantidades, pero sin análisis sistemático de causa.",2],
-    ["Se atienden al ocurrir, sin registro consolidado.",1],
-    ["No hay información suficiente o requiere validación adicional.",null]],
- evid:"Reportes de no conformidad (NCR), registros de retrabajo, área de scrap, métodos de análisis usados.",
- riesgo:"Costo de no calidad y exposición ante el cliente.",
- opp:"Análisis de causa raíz (5 Porqués, Ishikawa) y prevención por proceso.",
- kpi:"% de rechazo, retrabajos y costo de no calidad", metodo:"Pareto de rechazos por causa en un periodo definido",
- benef:"Menor costo de no calidad y menor exposición ante el cliente",
- links:[29,36,53]},
-{id:"GW-5", eje:"Estandarización, competencias y control de resultados",
- t:"¿Qué evidencia existe de que el proceso se ejecuta igual entre turnos y operadores?",
- o:[["Hojas de proceso vigentes en máquina, control de cambios y matriz de competencias con evaluaciones.",3],
-    ["Hay documentos, pero sin verificación de cumplimiento; las competencias se asumen por antigüedad.",2],
-    ["El proceso depende del conocimiento individual; los parámetros no están documentados.",1],
-    ["No hay información suficiente o requiere validación adicional.",null]],
- evid:"Documentos en piso frente a la versión vigente, comparación entre turnos, registros de capacitación.",
- riesgo:"Variabilidad por operador y pérdida de conocimiento tácito.",
- opp:"SOP, desarrollo de competencias y evaluación de certificaciones de competencias pertinentes.",
- kpi:"Cumplimiento de hoja de proceso y cobertura de competencias", metodo:"auditoría de cumplimiento en piso y matriz de competencias",
- benef:"Menor variabilidad entre turnos y menor dependencia de personas clave",
- links:[13,25,42]}
+ {
+  "id": "GW-1",
+  "eje": "Cinemática de husillo y runout",
+  "t": "¿Con qué regularidad se mide la excentricidad dinámica (runout) del cono y del filo antes del primer corte en material ISO S?",
+  "o": [
+   [
+    "Se mide con comparador en cada arranque o cambio de herramienta, con límite de rechazo definido y registrado.",
+    3
+   ],
+   [
+    "Se mide, pero sin límite de rechazo definido o sin registro.",
+    2
+   ],
+   [
+    "No se mide; se detecta hasta que hay rotura o desgaste asimétrico del filo.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Comparador de micra en uso, registro de runout, límite escrito, estado de cono y husillo.",
+  "riesgo": "Rotura de inserto, desgaste asimétrico, daño a rodamientos de husillo.",
+  "opp": "Protocolo de medición de runout y limpieza de husillo/conos con límite de rechazo (TPM de husillo).",
+  "kpi": "Roturas de inserto por turno y vida de herramienta",
+  "metodo": "registro de runout al arranque y conteo de roturas",
+  "benef": "Mayor vida de herramienta y menos roturas en desbaste",
+  "dim": [
+   "Costo por pieza",
+   "Calidad"
+  ],
+  "links": [
+   13,
+   17,
+   21
+  ]
+ },
+ {
+  "id": "GW-2",
+  "eje": "Física de corte (hex vs. radio de punta)",
+  "t": "¿Cómo se define y valida el avance por diente (fz) para que el espesor de viruta corte por debajo de la capa endurecida en HRSA o titanio?",
+  "o": [
+   [
+    "Se calcula con criterio de espesor de viruta, se valida en pieza piloto y queda en la hoja de proceso.",
+    3
+   ],
+   [
+    "Se toma del catálogo del fabricante sin validarlo en la pieza.",
+    2
+   ],
+   [
+    "Lo reduce el programador u operador por ruido o por precaución; hay desgaste en entalla (notch wear) recurrente.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Hoja de proceso/CAM, parámetros fz y ae reales, forma del desgaste en insertos usados.",
+  "riesgo": "Endurecimiento superficial, notch wear, cota GD&T fuera de tolerancia.",
+  "opp": "Revisión de parámetros de corte: espesor de viruta (fz) y estrategia CAM validada en pieza piloto.",
+  "kpi": "Desgaste en entalla y piezas rechazadas por cota",
+  "metodo": "inspección de insertos usados y registro de rechazos",
+  "benef": "Menor costo por pieza y menos piezas fuera de tolerancia",
+  "dim": [
+   "Costo por pieza",
+   "Calidad"
+  ],
+  "links": [
+   13,
+   17,
+   23
+  ],
+  "nota": "Todo cambio de parámetros, sujeción o estrategia de corte puede requerir re-calificación (FAI); distinguirlo en el informe."
+ },
+ {
+  "id": "GW-3",
+  "eje": "Refrigerante y control térmico",
+  "t": "¿Cómo se controla la concentración del refrigerante (BRIX) y la orientación de las boquillas de alta presión hacia la zona de corte?",
+  "o": [
+   [
+    "Se mide con refractómetro, hay rango definido, registro y boquillas verificadas en cada setup.",
+    3
+   ],
+   [
+    "Se mide de forma ocasional, sin registro o sin rango definido.",
+    2
+   ],
+   [
+    "La reposición es por apreciación (agua o aditivo sin medir) y no se verifica la dirección del chorro.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Refractómetro, bitácora de fluido, presión de bomba, posición de boquillas al cortar.",
+  "riesgo": "Microfisuras térmicas (comb cracks), vida de herramienta errática.",
+  "opp": "Control del refrigerante (concentración, presión y orientación de boquillas) con registro.",
+  "kpi": "Fisuras térmicas por lote y variación de vida de herramienta",
+  "metodo": "lectura de refractómetro y bitácora de fluido",
+  "benef": "Vida de herramienta más estable y menos fisuras térmicas",
+  "dim": [
+   "Calidad",
+   "Costo de herramienta"
+  ],
+  "links": [
+   19,
+   26,
+   36
+  ]
+ },
+ {
+  "id": "GW-4",
+  "eje": "Rigidez de sujeción y fixture",
+  "t": "¿Cómo se controlan el par de apriete y la deformación elástica en piezas de pared delgada o anillos antes de maquinar?",
+  "o": [
+   [
+    "Par definido con torquímetro, sujeción conformal o módulos de baja deformación, verificado antes de liberar la pieza.",
+    3
+   ],
+   [
+    "Par o mordazas estándar con criterio parcial; la verificación se hace solo al final.",
+    2
+   ],
+   [
+    "Apriete a criterio del operador; hay ovalamiento o rechazo por deformación.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Torquímetro y su calibración, tipo de mordaza/fixture, mediciones de redondez antes y después de liberar.",
+  "riesgo": "Ovalamiento, rechazo en inspección final, pérdida de material de alto costo.",
+  "opp": "Rediseño de sujeción para piezas de pared delgada y control del par de apriete.",
+  "kpi": "Rechazos por redondez o planicidad",
+  "metodo": "medición antes y después de liberar la pieza",
+  "benef": "Menos rechazos por deformación y menor pérdida de material",
+  "dim": [
+   "Calidad",
+   "Costo por pieza"
+  ],
+  "links": [
+   16,
+   21,
+   29
+  ],
+  "nota": "Todo cambio de parámetros, sujeción o estrategia de corte puede requerir re-calificación (FAI); distinguirlo en el informe."
+ },
+ {
+  "id": "GW-5",
+  "eje": "Alineación WCS y tiempos de setup",
+  "t": "¿Cómo se ejecuta y se mide el cambio de lote (ceros G54-G59, alineación de mordazas, herramental)?",
+  "o": [
+   [
+    "Tareas externas separadas con preajuste fuera de máquina, hoja de setup estandarizada y tiempo medido en cada cambio.",
+    3
+   ],
+   [
+    "Hay hoja de setup parcial; se mide el tiempo, pero sin separar tareas internas y externas.",
+    2
+   ],
+   [
+    "Alineación a prueba y error, sin preajuste y sin medición del tiempo de cambio.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Cronometrar un cambio completo, hoja de setup, presetter, carros o racks de herramental.",
+  "riesgo": "Husillo detenido, cuello de botella en la celda, capacidad perdida.",
+  "opp": "SMED: separar tareas internas y externas, preajuste de herramental y hoja de setup estandarizada.",
+  "kpi": "Minutos de setup por cambio de lote",
+  "metodo": "cronometraje de un cambio completo y registro por lote",
+  "benef": "Más capacidad de husillo y mejor cumplimiento de entregas",
+  "dim": [
+   "Capacidad",
+   "Cumplimiento de entrega"
+  ],
+  "links": [
+   23,
+   27,
+   51
+  ]
+ },
+ {
+  "id": "GW-6",
+  "eje": "Uso del override y confianza en el programa",
+  "t": "¿En qué rango real opera el potenciómetro de avance (feed override) durante las pasadas automáticas en Inconel o titanio?",
+  "o": [
+   [
+    "Se mantiene en 100% en producción con programa validado y simulado.",
+    3
+   ],
+   [
+    "Entre 80% y 99% en parte del ciclo, sin criterio documentado.",
+    2
+   ],
+   [
+    "Con frecuencia por debajo de 80% por desconfianza en el programa, miedo a colisión o vibración.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Observar el potenciómetro durante un ciclo completo y comparar tiempo real vs. tiempo de CAM.",
+  "riesgo": "Tiempo de ciclo inflado, frotamiento térmico, entregas más largas.",
+  "opp": "Validación y simulación de programas para operar el avance al 100% con certeza.",
+  "kpi": "Tiempo de ciclo real vs. tiempo de CAM",
+  "metodo": "observación del override durante un ciclo completo",
+  "benef": "Menor tiempo de ciclo y más capacidad",
+  "dim": [
+   "Capacidad",
+   "Costo por pieza"
+  ],
+  "links": [
+   18,
+   23,
+   51
+  ],
+  "nota": "Todo cambio de parámetros, sujeción o estrategia de corte puede requerir re-calificación (FAI); distinguirlo en el informe."
+ },
+ {
+  "id": "GW-7",
+  "eje": "Estrategia de entrada al corte",
+  "t": "¿Cómo entra la herramienta a la pieza en desbaste de materiales ISO S?",
+  "o": [
+   [
+    "Entrada tangencial (rampa helicoidal o arco) estandarizada en CAM y verificada en la primera pieza.",
+    3
+   ],
+   [
+    "Depende del programador; se aplica en algunas operaciones y en otras no.",
+    2
+   ],
+   [
+    "Entrada recta a 90° o por trayectoria por defecto; hay astillado o fractura al primer contacto.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Revisar trayectorias en CAM y el estado de insertos retirados por rotura temprana.",
+  "riesgo": "Fractura prematura de plaquita, scrap en desbaste inicial.",
+  "opp": "Reprogramación de entradas al corte (rampa o arco tangencial) con regla en CAM.",
+  "kpi": "Roturas al primer contacto y scrap en desbaste",
+  "metodo": "registro de insertos retirados por rotura temprana",
+  "benef": "Menor costo de herramienta y menos scrap en desbaste",
+  "dim": [
+   "Costo por pieza",
+   "Calidad"
+  ],
+  "links": [
+   17,
+   21,
+   52
+  ],
+  "nota": "Todo cambio de parámetros, sujeción o estrategia de corte puede requerir re-calificación (FAI); distinguirlo en el informe."
+ },
+ {
+  "id": "GW-8",
+  "eje": "Estado de conos y retención",
+  "t": "¿Cómo se inspecciona el estado de conos y tirantes y cómo se controla el apriete del inserto o portaherramienta?",
+  "o": [
+   [
+    "Inspección programada de conos, tirantes y apriete con torquímetro calibrado, con descarte formal de piezas dañadas.",
+    3
+   ],
+   [
+    "Inspección visual sin calendario, o sin torquímetro calibrado.",
+    2
+   ],
+   [
+    "Sin inspección; apriete a pulso y hay chatter o fretting observado.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Contacto cónico (pintura o azul de Prusia), llaves y torquímetros en celda, historial de descartes.",
+  "riesgo": "Chatter, acabado rugoso, pérdida de repetibilidad, riesgo para el husillo.",
+  "opp": "Inspección programada de conos y tirantes y apriete con torquímetro calibrado.",
+  "kpi": "Descartes por fretting y piezas con chatter",
+  "metodo": "inspección periódica con registro de descartes",
+  "benef": "Mejor acabado superficial y protección del husillo",
+  "dim": [
+   "Calidad"
+  ],
+  "links": [
+   16,
+   19,
+   21
+  ]
+ },
+ {
+  "id": "GW-9",
+  "eje": "Control estadístico en piso (SPC)",
+  "t": "¿Quién mide las características críticas y cuándo se detecta una desviación: al pie de máquina o hasta el dictamen de CMM?",
+  "o": [
+   [
+    "El operador mide y grafica (X-R, Ra) al pie de máquina, con criterio de paro definido.",
+    3
+   ],
+   [
+    "Se mide en máquina, pero sin gráficas ni criterio de paro.",
+    2
+   ],
+   [
+    "Se espera al dictamen de CMM o laboratorio; hay lotes con detección tardía.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "Cartas de control o bitácora de mediciones, instrumentos calibrados en celda, último lote rechazado.",
+  "riesgo": "Piezas defectuosas hechas antes de la alerta, scrap por lote, retrabajo.",
+  "opp": "SPC en piso: mediciones al pie de máquina con criterio de paro.",
+  "kpi": "Scrap por lote y tiempo entre defecto y alerta",
+  "metodo": "cartas de control y registro de mediciones",
+  "benef": "Detección temprana, menos scrap y retrabajo",
+  "dim": [
+   "Calidad",
+   "Cumplimiento de entrega"
+  ],
+  "links": [
+   26,
+   34,
+   36
+  ]
+ },
+ {
+  "id": "GW-10",
+  "eje": "Estandarización y competencias",
+  "t": "¿Cómo se asegura que cada turno ejecute el proceso igual y que el personal tenga competencia comprobada?",
+  "o": [
+   [
+    "SOP visible en máquina, mismos parámetros entre turnos y competencias evaluadas o certificadas.",
+    3
+   ],
+   [
+    "El SOP existe pero no se usa de forma consistente, o hay diferencias entre turnos.",
+    2
+   ],
+   [
+    "Depende de la experiencia de un operador clave; el aprendizaje es empírico y sin evaluación formal.",
+    1
+   ],
+   [
+    "No hay información suficiente o requiere validación adicional.",
+    null
+   ]
+  ],
+  "evid": "SOP en máquina, comparación de parámetros entre turnos, registros de capacitación y evaluación.",
+  "riesgo": "Dependencia de personas clave, variación entre turnos, no conformidades de auditoría.",
+  "opp": "SOP visual en máquina, parámetros estándar entre turnos y evaluación de competencias.",
+  "kpi": "Variación de parámetros entre turnos y personal evaluado",
+  "metodo": "comparación de parámetros por turno y registros de capacitación",
+  "benef": "Menor dependencia de personas clave y mejor cumplimiento",
+  "dim": [
+   "Cumplimiento de entrega",
+   "Calidad"
+  ],
+  "links": [
+   13,
+   25,
+   42
+  ]
+ }
 ];
 const gw = {}; // id -> {letter,label,score}
 
@@ -485,7 +811,7 @@ const gembaHost = document.getElementById('gembaHost');
   let html = `
     <div class="block-head">
       <div class="block-icon">◎</div>
-      <div><p class="block-title">Gemba Walk — 5 preguntas estratégicas</p><p class="block-sub">RECORRIDO DE PLANTA · TRAZABLE POR EVIDENCIA Y FUENTE</p></div>
+      <div><p class="block-title">Gemba Walk — 10 preguntas de opción múltiple + 1 abierta</p><p class="block-sub">RECORRIDO DE PLANTA · TRAZABLE POR EVIDENCIA Y FUENTE</p></div>
     </div>
     <p class="spin-lede" style="margin-top:0;">Por cada pregunta: elige la letra que describe lo que ves o te muestran, indica la fuente y anota la evidencia. Una declaración del personal no es un hecho verificado. Si no hay evidencia, elige D y anota qué falta validar. De A (mayor control) a C (menor control); D = sin información o validación pendiente.</p>`;
   GEMBA.forEach((g, gi) => {
@@ -505,8 +831,29 @@ const gembaHost = document.getElementById('gembaHost');
         </div>
       </div>`;
   });
+  const dimOpts = ['Costo por pieza','Capacidad','Calidad','Cumplimiento de entrega'].map(d => `<option>${d}</option>`).join('');
+  const linkBoxes = GEMBA.map(g => `<label class="gw-chk"><input type="checkbox" class="gwOpenLink" value="${g.id}"> ${g.id.replace('GW-','')} ${g.eje}</label>`).join('');
   html += `
-    <div class="warn" id="warn-1">En cada pregunta elige una letra, la fuente y anota la evidencia (en D, anota qué falta validar).</div>
+      <div class="gw-q" style="border-color:var(--teal);">
+        <div class="gw-eje"><span class="gw-id" style="background:var(--teal);color:#fff;">GW-11</span>Pregunta abierta con trazabilidad</div>
+        <div class="qtext"><span><b>¿Cuál es el principal reto operativo del área que, de comprobarse su impacto, representaría la mayor oportunidad de mejora en costo por pieza, capacidad, calidad o cumplimiento de entrega?</b></span></div>
+        <div class="gw-meta">Respóndela al final del recorrido, con lo que viste en las 10 preguntas anteriores. Registra las palabras del entrevistado sin reinterpretarlas y vincula las preguntas que lo respaldan.</div>
+        <div class="gw-fields">
+          <div class="field full"><label>1. Reto, en palabras del entrevistado</label>
+            <textarea id="gwOpenReto" rows="3" placeholder="Textual, sin reinterpretar..."></textarea></div>
+          <div class="field"><label>2. Dimensión principal de impacto</label>
+            <select id="gwOpenDim"><option value="">Selecciona</option>${dimOpts}</select></div>
+          <div class="field"><label>3. Fuente de la respuesta</label>
+            <select id="gwOpenSrc"><option value="">Selecciona</option><option>Observación directa</option><option>Documental</option><option>Declaración del personal</option></select></div>
+          <div class="field full"><label>4. Preguntas de opción múltiple que lo respaldan (marca todas las que apliquen)</label>
+            <div class="gw-chks">${linkBoxes}</div></div>
+          <div class="field full"><label>5. Evidencia o dato que lo sostiene (si no existe, escribe "por medir")</label>
+            <textarea id="gwOpenEv" rows="2" placeholder="Registro, medición u observación..."></textarea></div>
+          <div class="field"><label>6. Indicador y método de medición</label><input type="text" id="gwOpenKpi" placeholder="Ej. minutos de setup, con cronómetro por lote"></div>
+          <div class="field"><label>7. Entrevistado / área</label><input type="text" id="gwOpenWho" placeholder="Ej. Gerente de planta"></div>
+        </div>
+      </div>
+    <div class="warn" id="warn-1">Responde las 10 preguntas (letra, fuente y evidencia) y completa la pregunta abierta: reto, dimensión, fuente, al menos una pregunta vinculada y evidencia.</div>
     <div class="nav">
       <button type="button" class="btn" onclick="goPrev()">← Anterior</button>
       <button type="button" class="btn primary" onclick="goNext()">Siguiente →</button>
@@ -525,7 +872,9 @@ function selectGw(el){
   gw[gid] = {letter:'ABCD'[oi], label:op[0], score:op[1]};
 }
 function gembaComplete(){
-  return GEMBA.every((g, i) => gw[g.id] && val('gwSrc-' + i) && val('gwEv-' + i));
+  const mc = GEMBA.every((g, i) => gw[g.id] && val('gwSrc-' + i) && val('gwEv-' + i));
+  const open = val('gwOpenReto') && val('gwOpenDim') && val('gwOpenSrc') && val('gwOpenEv') && document.querySelectorAll('.gwOpenLink:checked').length > 0;
+  return !!(mc && open);
 }
 
 /* map qid -> block/tag/options for scoring */
@@ -805,6 +1154,39 @@ function gwRead(){
   });
 }
 
+function openRead(rows){
+  const reto = val('gwOpenReto'), dim = val('gwOpenDim'), fuente = val('gwOpenSrc'), ev = val('gwOpenEv'), kpi = val('gwOpenKpi'), quien = val('gwOpenWho');
+  const ids = Array.from(document.querySelectorAll('.gwOpenLink:checked')).map(x => x.value);
+  const linked = rows.filter(r => ids.includes(r.def.id));
+  const scoredL = linked.filter(r => !r.noData);
+  let conc;
+  if(!scoredL.length) conc = {k:'hip', t:'Hipótesis por validar: las preguntas vinculadas no tienen dato (D)'};
+  else {
+    const min = Math.min.apply(null, scoredL.map(r => r.g.score));
+    if(min === 1) conc = {k:'ok', t:'Concordante: el reto se apoya en al menos un fallo (C)'};
+    else if(min === 2) conc = {k:'par', t:'Concordante parcial: las preguntas vinculadas muestran práctica con brecha (B)'};
+    else conc = {k:'dif', t:'Discrepancia: el reto se apoya solo en preguntas con control (A); validar en planta'};
+  }
+  let st;
+  if(!scoredL.length) st = {k:'hip', t:'Hipótesis por validar'};
+  else if(fuente === 'Observación directa' || fuente === 'Documental') st = {k:'conf', t:'Hallazgo confirmado'};
+  else st = {k:'decl', t:'Declarado, no verificado'};
+  let prio;
+  if(conc.k === 'ok') prio = 'Alta' + (st.k === 'conf' ? '' : ' (por validar)');
+  else if(conc.k === 'par') prio = 'Media' + (st.k === 'conf' ? '' : ' (por validar)');
+  else prio = 'Por definir tras validar';
+  const fallosNoVinc = rows.filter(r => !r.noData && r.g.score === 1 && !ids.includes(r.def.id));
+  const dimOk = !linked.length || linked.some(r => r.def.dim.includes(dim));
+  return {reto, dim, fuente, ev, kpi, quien, ids, linked, conc, st, prio, fallosNoVinc, dimOk};
+}
+
+function openNotes(op){
+  let s = '';
+  if(!op.dimOk) s += ' La dimensión declarada no coincide con la de las preguntas vinculadas: confirmar con el entrevistado.';
+  if(op.fallosNoVinc.length >= 2) s += ` Hay ${op.fallosNoVinc.length} fallos (C) que el reto no incluye (${op.fallosNoVinc.map(r => r.def.id).join(', ')}): el reto puede no ser el único ni el principal.`;
+  return s;
+}
+
 function gwPrioridad(r){
   if(r.noData) return 'Por definir tras validar';
   const base = r.g.score === 1 ? 'Alta' : (r.g.score === 2 ? 'Media' : 'Baja (monitoreo)');
@@ -813,6 +1195,8 @@ function gwPrioridad(r){
 
 function buildReportModel(scores, meta){
   const rows = gwRead();
+  const op = openRead(rows);
+  window.__open = op;
   const emp = meta.empresa || 'la empresa';
   const nConf = rows.filter(r => r.st.k === 'conf').length;
   const nDecl = rows.filter(r => r.st.k === 'decl').length;
@@ -830,9 +1214,10 @@ function buildReportModel(scores, meta){
   window.__gwSummary = {pct:gwPct, nConf, nDecl, nHip};
 
   S.push({h:'A. Resumen ejecutivo', items:[
-    {p:`Diagnóstico preliminar para ${emp}, a cargo de ${meta.consultorNombre || 'RECSI CNC'}${meta.fecha ? ' (' + meta.fecha + ')' : ''}. Combina un Gemba Walk de 5 ejes, con fuente y evidencia por respuesta, y el checklist Discovery Express de 60 preguntas, y los contrasta para separar hechos de hipótesis.`},
+    {p:`Diagnóstico preliminar para ${emp}, a cargo de ${meta.consultorNombre || 'RECSI CNC'}${meta.fecha ? ' (' + meta.fecha + ')' : ''}. Combina un Gemba Walk de 10 preguntas de opción múltiple y 1 pregunta abierta, con fuente y evidencia por respuesta, y el checklist Discovery Express de 60 preguntas, y los contrasta para separar hechos de hipótesis.`},
     {p:`Resultado: índice global de madurez ${scores._total}%; índice Gemba ${gwPct === null ? 'sin datos' : gwPct + '%'}. Hallazgos: ${nConf} confirmado(s), ${nDecl} declarado(s) sin verificar y ${nHip} hipótesis por validar.`},
     {p:`Problema señalado por el cliente (textual): ${meta.spinProblema || '(sin registrar)'}`},
+    {p:`Principal reto operativo declarado en el recorrido (GW-11, textual): ${op.reto || '(sin registrar)'}. Dimensión de impacto: ${op.dim || '—'}. ${op.st.t}. ${op.conc.t}.${openNotes(op)}`},
     {p: ejeDebil ? `Eje con menor madurez observada: ${ejeDebil}.` : 'Aún no hay ejes con dato suficiente para priorizar.'},
     {p:'Decisiones que facilita: qué eje atender primero, qué hipótesis validar antes de invertir, y el alcance e inversión del diagnóstico especializado.'}
   ]});
@@ -843,7 +1228,7 @@ function buildReportModel(scores, meta){
 
   S.push({h:'C. Alcance', items:[
     {p:'Incluye:'},
-    {ul:['Gemba Walk de 5 ejes: tiempo de ciclo, utilización CNC, herramientas de corte, calidad y estandarización/competencias.',
+    {ul:['Gemba Walk de 10 ejes técnicos en la celda CNC (runout, física de corte, refrigerante, sujeción, setup, override, entrada al corte, conos, control estadístico y estandarización) y 1 pregunta abierta sobre el principal reto operativo.',
          'Checklist Discovery Express de 60 preguntas, usado para contrastar cada hallazgo.',
          'Matriz de hallazgos con pregunta, respuesta, evidencia, fuente y estatus.']},
     {p:'Por validar:'},
@@ -864,12 +1249,21 @@ function buildReportModel(scores, meta){
         r.conc.t + (r.linked.length ? ' — ' + r.linked.map(x => `P${x.n}: ${x.a.label} (${x.a.score}/3)`).join('; ') : ''),
         r.def.riesgo,
         gwPrioridad(r)
-      ])
+      ]).concat([[
+        'GW-11',
+        `Pregunta abierta — ${op.reto || '(sin respuesta)'}`,
+        `${op.fuente || '—'}${op.quien ? ' (' + op.quien + ')' : ''}. ${op.ev || '(sin evidencia)'}`,
+        op.st.t,
+        op.conc.t + (op.linked.length ? ' — vinculadas: ' + op.linked.map(r => `${r.def.id} ${r.g.letter || 'D'}`).join(', ') : '') + '.' + openNotes(op),
+        `Impacto potencial en ${op.dim || '—'}; indicador: ${op.kpi || 'por definir'}`,
+        op.prio
+      ]])
     }}
   ]});
 
   S.push({h:'E. Priorización', items:[
     {p:'Criterios: impacto económico potencial, urgencia, viabilidad y calidad de la evidencia. Los hallazgos confirmados se atienden primero; las hipótesis se validan antes de proponer inversión.'},
+    {p:`Principal reto operativo (GW-11): ${op.reto || '(sin registrar)'}. Prioridad: ${op.prio.toLowerCase()}. Se prioriza junto con los ejes donde las preguntas vinculadas muestran fallos; antes de proponer inversión se comprueba su impacto con el indicador ${op.kpi ? '«' + op.kpi + '»' : 'por definir'}.`},
     {ul: [...orden, ...rows.filter(r => r.noData)].map((r, i) => `${i + 1}. ${r.def.id} ${r.def.eje}: prioridad ${gwPrioridad(r).toLowerCase()}; ${r.st.t.toLowerCase()}.`)},
     {p:'Contexto declarado en el checklist (no verificado):'},
     {ul:[`Horas perdidas por semana: ${lab(51)}.`, `Costo mensual estimado del problema: ${lab(52)}.`, `Si se mantiene 6 meses: ${lab(53)}.`, `Urgencia: ${lab(59)}.`, `Responsable interno del proyecto: ${lab(47)}.`]},
@@ -877,10 +1271,11 @@ function buildReportModel(scores, meta){
   ]});
 
   S.push({h:'F. Propuesta de valor e intervención', items:[
-    {p:`Problema a resolver: ${meta.spinProblema || (ejeDebil ? 'eje de menor madurez observada: ' + ejeDebil : 'por definir tras validar las hipótesis')}.`},
+    {p:`Problema a resolver: ${op.reto || meta.spinProblema || (ejeDebil ? 'eje de menor madurez observada: ' + ejeDebil : 'por definir tras validar las hipótesis')}.`},
     {p:'Por qué investigar antes de invertir: intervenir sin conocer la causa raíz puede gastar presupuesto en el síntoma y, en un entorno aeroespacial, un cambio de proceso puede exigir re-calificación (FAI). Validar primero permite decidir con evidencia.'},
     {p:'Intervención propuesta, en orden de prioridad:'},
     {ul: [
+      `GW-11 Principal reto operativo: comprobar su impacto con línea base (${op.kpi || 'indicador por definir'}) y decidir su alcance frente a los demás ejes.`,
       ...top.map(r => `${r.def.id} ${r.def.eje}: ${r.def.opp}${r.def.nota ? ' ' + r.def.nota : ''}`),
       ...rows.filter(r => r.noData).map(r => `${r.def.id} ${r.def.eje}: validación en planta antes de definir la intervención.`),
       'Diagnóstico profundo con análisis de causa raíz de los ejes priorizados.'
@@ -905,7 +1300,13 @@ function buildReportModel(scores, meta){
         `${r.def.kpi}. Línea base: ${r.st.k === 'conf' ? 'a partir de la evidencia registrada' : 'por medir'}.`,
         `Meta por acordar con ${emp}. Método: ${r.def.metodo}.`,
         'Responsable por definir en el área. Revisión a 30, 60 y 90 días.'
-      ])
+      ]).concat([[
+        'Principal reto operativo (GW-11)',
+        `Mayor oportunidad en ${op.dim || 'la dimensión declarada'} (hipótesis a comprobar)`,
+        `${op.kpi || 'Indicador por definir'}. Línea base: ${op.st.k === 'conf' ? 'a partir de la evidencia registrada' : 'por medir'}.`,
+        `Meta por acordar con ${emp}.`,
+        'Responsable por definir en el área. Revisión a 30, 60 y 90 días.'
+      ]])
     }}
   ]});
 
@@ -914,7 +1315,7 @@ function buildReportModel(scores, meta){
       head:['Fase','Actividades','Resultado esperado'],
       rows:[
         ['0–30 días', `Validar hipótesis pendientes${pend.length ? ' (' + pend.map(r => r.def.id).join(', ') + ')' : ''}; levantar la línea base de los indicadores; acordar alcance, recursos y responsables.`, 'Hallazgos confirmados y línea base documentada.'],
-        ['31–60 días', `Análisis de causa raíz${top.length ? ' en ' + top.slice(0, 2).map(r => r.def.eje).join(' y ') : ''}; definir acciones de mejora y revisar cuáles requieren re-calificación.`, 'Causas raíz priorizadas y acciones aprobadas.'],
+        ['31–60 días', `Análisis de causa raíz${op.reto ? ' del reto principal (GW-11)' : ''}${top.length ? ' y de ' + top.slice(0, 2).map(r => r.def.eje).join(' y ') : ''}; definir acciones de mejora y revisar cuáles requieren re-calificación.`, 'Causas raíz priorizadas y acciones aprobadas.'],
         ['61–90 días', 'Pilotos acotados de mejora, estandarización (SOP, hojas de proceso), desarrollo de competencias y medición contra la línea base.', 'Resultados medidos y plan de sostenimiento.']
       ]
     }},
